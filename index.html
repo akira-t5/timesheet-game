@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タイムシート計算トレーニング Ver.1.0.5</title>
+    <title>タイムシート計算トレーニング Ver.1.0.8</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -174,6 +174,27 @@
         .x-share-btn:hover {
             background-color: #222222;
         }
+        
+        /* 【変更】トップページ用に少し大きく調整した黒背景の「共有」ボタン */
+        .x-top-btn {
+            background-color: #000000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+            margin-top: 25px; /* 一番下に配置するための余白 */
+        }
+        .x-top-btn:hover {
+            background-color: #222222;
+        }
+
         .restart-btn {
             background-color: #6c757d;
         }
@@ -188,7 +209,7 @@
 <div class="game-container">
     <div id="setup-screen">
         <h1>タイムシート計算ゲーム</h1>
-        <span class="version-tag">Ver.1.0.5</span>
+        <span class="version-tag">Ver.1.0.8</span>
         
         <div class="difficulty-select">
             <button class="diff-btn active" id="diff-beginner" onclick="setDifficulty('beginner')">入門 (〜3秒)</button>
@@ -200,7 +221,13 @@
             <span class="setup-label">問題数 (1〜99):</span>
             <input type="number" id="input-total-questions" class="input-number" min="1" max="99" value="10">
         </div>
-        <button class="action-btn" style="background-color: #007bff;" onclick="startGame()">ゲーム開始</button>
+        <button class="action-btn" style="background-color: #007bff; margin-bottom: 5px;" onclick="startGame()">ゲーム開始</button>
+        
+        <br>
+        <button class="x-top-btn" onclick="shareGameTop()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            共有
+        </button>
     </div>
 
     <div id="play-screen" class="hidden">
@@ -247,8 +274,6 @@
     let questionLogs = [];
     let shareText = "";
     
-    // 現在のゲームの状態を完全に管理する変数
-    // 0: 秒の入力待ち / 1: コマの入力待ち / 2: 判定結果の表示中
     let currentStep = 0; 
 
     function setDifficulty(level) {
@@ -307,14 +332,12 @@
         btn.textContent = "判定する";
         btn.style.backgroundColor = "#28a745";
 
-        // 【状態リセット】ステップを0（秒入力待ち）にして、秒の入力欄にフォーカス
         currentStep = 0;
         document.getElementById('input-seconds').focus();
 
         questionStartTime = performance.now();
     }
 
-    // ボタンをクリックした時の共通ハンドラー
     function handleMainAction() {
         if (currentStep === 2) {
             nextQuestion();
@@ -357,7 +380,6 @@
         btn.textContent = currentQuestionIndex === totalQuestionsSetting ? "結果を見る" : "次の問題へ";
         btn.style.backgroundColor = "#007bff";
         
-        // 【状態変更】ステップを2（結果表示中）に変更
         currentStep = 2;
     }
 
@@ -394,7 +416,7 @@
         });
 
         const gameUrl = window.location.href;
-        shareText = `【タイムシート計算ゲーム Ver.1.0.5】\n難易度: ${diffName}\n正解数: ${correctAnswers}/${totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
+        shareText = `【タイムシート計算ゲーム】\n難易度: ${diffName}\n正解数: ${correctAnswers}/${totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
     }
 
     function shareOnX() {
@@ -402,25 +424,41 @@
         window.open(xUrl, '_blank', 'noopener,noreferrer');
     }
 
-    // 全体および入力欄のキーイベント管理（すべて同じルールで1箇所で制御）
+    function shareGameTop() {
+        const gameUrl = window.location.href;
+        const topShareText = `アニメ制作のタイムシート計算（フレーム換算）トレーニングゲーム🎮\n\nこちらからプレイ👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
+        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(topShareText)}`;
+        window.open(xUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    document.getElementById('input-seconds').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            currentStep = 1;
+            document.getElementById('input-frames').focus(); 
+        }
+    });
+
+    document.getElementById('input-frames').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    });
+
     document.addEventListener('keydown', function(e) {
-        // ゲーム画面が表示されていない時は何もしない
         if (document.getElementById('play-screen').classList.contains('hidden')) return;
 
         if (e.key === 'Enter') {
-            e.preventDefault(); // デフォルトのEnter処理（ボタン自体の押し込み等）を完全遮断
+            e.preventDefault();
 
             if (currentStep === 0) {
-                // 秒を入力した状態でEnterを押したら「コマ」へ進む
                 currentStep = 1;
                 document.getElementById('input-frames').focus();
             } 
             else if (currentStep === 1) {
-                // コマを入力した状態でEnterを押したら「判定」を実行（画面はここで止まる）
                 checkAnswer();
             } 
             else if (currentStep === 2) {
-                // 判定が出ている状態でEnterを押したら「次の問題」へ行く
                 nextQuestion();
             }
         }

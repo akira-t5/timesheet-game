@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タイムシート計算トレーニング</title>
+    <title>タイムシート計算トレーニング Ver.1.0.5</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -20,12 +20,19 @@
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             text-align: center;
-            width: 440px; /* ボタンが増えたため横幅を少し広げました */
+            width: 440px;
         }
         h1 {
             font-size: 20px;
             color: #333;
+            margin-bottom: 5px;
+        }
+        .version-tag {
+            font-size: 12px;
+            color: #888;
+            font-weight: normal;
             margin-bottom: 15px;
+            display: block;
         }
         .difficulty-select, .setup-group {
             margin-bottom: 15px;
@@ -33,7 +40,7 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap; /* ボタンが溢れないように折り返しを許可 */
+            flex-wrap: wrap;
         }
         .diff-btn {
             padding: 8px 12px;
@@ -111,7 +118,6 @@
         .success { color: #28a745; }
         .error { color: #dc3545; }
         
-        /* リザルト画面用スタイル */
         .result-screen {
             text-align: left;
             background-color: #fff;
@@ -147,7 +153,7 @@
             justify-content: space-between;
         }
         .x-share-btn {
-            background-color: #1DA1F2;
+            background-color: #000000;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -166,7 +172,7 @@
             margin-bottom: 10px;
         }
         .x-share-btn:hover {
-            background-color: #1a91da;
+            background-color: #222222;
         }
         .restart-btn {
             background-color: #6c757d;
@@ -182,6 +188,8 @@
 <div class="game-container">
     <div id="setup-screen">
         <h1>タイムシート計算ゲーム</h1>
+        <span class="version-tag">Ver.1.0.5</span>
+        
         <div class="difficulty-select">
             <button class="diff-btn active" id="diff-beginner" onclick="setDifficulty('beginner')">入門 (〜3秒)</button>
             <button class="diff-btn" id="diff-easy" onclick="setDifficulty('easy')">簡単 (〜6秒)</button>
@@ -208,20 +216,20 @@
             <span style="font-size:18px; font-weight:bold;">コマ</span>
         </div>
 
-        <button id="submit-btn" class="action-btn" onclick="checkAnswer()">判定する</button>
+        <button id="submit-btn" class="action-btn" onclick="handleMainAction()">判定する</button>
         <div class="result-message" id="result-message"></div>
     </div>
 
     <div id="result-screen" class="result-screen hidden">
         <div class="result-title">🎉 終了！結果発表</div>
-        <div class="summary-box" id="summary-text">
-            </div>
-        <div class="log-container" id="log-container">
-            </div>
-        <a id="x-share-link" class="x-share-btn" target="_blank">
+        <div class="summary-box" id="summary-text"></div>
+        <div class="log-container" id="log-container"></div>
+        
+        <button id="x-share-btn" class="x-share-btn" onclick="shareOnX()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             結果をXにポストする
-        </a>
+        </button>
+        
         <button class="action-btn restart-btn" onclick="showSetup()">タイトルに戻る</button>
     </div>
 </div>
@@ -231,13 +239,17 @@
     let totalQuestionsSetting = 10;
     let currentQuestionIndex = 0;
     let correctAnswers = 0;
-    let currentDifficulty = 'beginner'; // 初期値を「入門」に変更
+    let currentDifficulty = 'beginner';
 
-    // タイマー関連
     let gameStartTime = 0;
     let questionStartTime = 0;
     let questionTimes = [];
     let questionLogs = [];
+    let shareText = "";
+    
+    // 現在のゲームの状態を完全に管理する変数
+    // 0: 秒の入力待ち / 1: コマの入力待ち / 2: 判定結果の表示中
+    let currentStep = 0; 
 
     function setDifficulty(level) {
         currentDifficulty = level;
@@ -279,11 +291,10 @@
 
         document.getElementById('info-progress').textContent = `${currentQuestionIndex} / ${totalQuestionsSetting} 問目`;
 
-        // 難易度に応じたフレーム生成の閾値
-        let maxFrames = 72; // 入門: 3秒 * 24Fr
-        if (currentDifficulty === 'easy') maxFrames = 144;   // 簡単: 6秒 * 24Fr
-        if (currentDifficulty === 'medium') maxFrames = 288; // 中級: 12秒 * 24Fr
-        if (currentDifficulty === 'hard') maxFrames = 999;   // 上級: 最大
+        let maxFrames = 72;
+        if (currentDifficulty === 'easy') maxFrames = 144;
+        if (currentDifficulty === 'medium') maxFrames = 288;
+        if (currentDifficulty === 'hard') maxFrames = 999;
 
         currentFrames = Math.floor(Math.random() * maxFrames) + 1;
         
@@ -294,10 +305,22 @@
         
         const btn = document.getElementById('submit-btn');
         btn.textContent = "判定する";
-        btn.setAttribute("onclick", "checkAnswer()");
         btn.style.backgroundColor = "#28a745";
 
+        // 【状態リセット】ステップを0（秒入力待ち）にして、秒の入力欄にフォーカス
+        currentStep = 0;
+        document.getElementById('input-seconds').focus();
+
         questionStartTime = performance.now();
+    }
+
+    // ボタンをクリックした時の共通ハンドラー
+    function handleMainAction() {
+        if (currentStep === 2) {
+            nextQuestion();
+        } else {
+            checkAnswer();
+        }
     }
 
     function checkAnswer() {
@@ -332,8 +355,10 @@
 
         const btn = document.getElementById('submit-btn');
         btn.textContent = currentQuestionIndex === totalQuestionsSetting ? "結果を見る" : "次の問題へ";
-        btn.setAttribute("onclick", "nextQuestion()");
         btn.style.backgroundColor = "#007bff";
+        
+        // 【状態変更】ステップを2（結果表示中）に変更
+        currentStep = 2;
     }
 
     function endGame() {
@@ -368,14 +393,36 @@
             logContainer.appendChild(item);
         });
 
-        const text = `【タイムシート計算ゲーム】\n難易度: ${diffName}\n正解数: ${correctAnswers}/${totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n#タイムシート計算ゲーム #アニメ制作`;
-        const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
-        document.getElementById('x-share-link').setAttribute('href', xUrl);
+        const gameUrl = window.location.href;
+        shareText = `【タイムシート計算ゲーム Ver.1.0.5】\n難易度: ${diffName}\n正解数: ${correctAnswers}/${totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
     }
 
-    document.addEventListener('keypress', function(e) {
-        if (!document.getElementById('play-screen').classList.contains('hidden') && e.key === 'Enter') {
-            document.getElementById('submit-btn').click();
+    function shareOnX() {
+        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(shareText)}`;
+        window.open(xUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    // 全体および入力欄のキーイベント管理（すべて同じルールで1箇所で制御）
+    document.addEventListener('keydown', function(e) {
+        // ゲーム画面が表示されていない時は何もしない
+        if (document.getElementById('play-screen').classList.contains('hidden')) return;
+
+        if (e.key === 'Enter') {
+            e.preventDefault(); // デフォルトのEnter処理（ボタン自体の押し込み等）を完全遮断
+
+            if (currentStep === 0) {
+                // 秒を入力した状態でEnterを押したら「コマ」へ進む
+                currentStep = 1;
+                document.getElementById('input-frames').focus();
+            } 
+            else if (currentStep === 1) {
+                // コマを入力した状態でEnterを押したら「判定」を実行（画面はここで止まる）
+                checkAnswer();
+            } 
+            else if (currentStep === 2) {
+                // 判定が出ている状態でEnterを押したら「次の問題」へ行く
+                nextQuestion();
+            }
         }
     });
 </script>

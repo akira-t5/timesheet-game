@@ -3,1127 +3,1061 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タイムシート計算トレーニング Ver.1.3.0</title>
+    <title>タイムシート計算トレーニング Ver.2.2.0</title>
     <style>
+        :root {
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --ink: #1a2233;
+            --ink-soft: #5c6677;
+            --ink-faint: #93a0b3;
+            --brand: #3b6ef5;
+            --brand-dark: #2b54c8;
+            --brand-soft: #eaf0ff;
+            --success: #1faa59;
+            --danger: #e0413c;
+            --warn: #e8870d;
+            --line: #e3e8f0;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 10px 40px rgba(28,42,76,0.12);
+            --shadow-sm: 0 2px 8px rgba(28,42,76,0.08);
+            --gold: #c79a3b;
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            font-family: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', Meiryo, sans-serif;
+            background: linear-gradient(160deg, #e9edf5 0%, #f4f6fa 100%);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 16px;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
         }
         .game-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background-color: var(--surface);
+            padding: 28px 26px 22px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             text-align: center;
-            width: 440px;
-            max-height: 90vh;
-            overflow-y: auto;
+            width: 100%; max-width: 480px;
+            max-height: 94vh; overflow-y: auto;
+            position: relative;
         }
-        h1 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 5px;
+        .settings-btn {
+            position: absolute; top: 18px; right: 18px;
+            background: none; border: none; font-size: 22px;
+            cursor: pointer; color: var(--ink-faint);
+            transition: transform 0.2s, color 0.2s; line-height: 1;
         }
-        .version-tag {
-            font-size: 12px;
-            color: #888;
-            font-weight: normal;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .storage-status {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 10px;
-            padding: 6px 8px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            border-left: 3px solid #28a745;
-        }
-        .difficulty-select, .setup-group {
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .diff-btn {
-            padding: 8px 12px;
-            font-size: 13px;
-            border: 2px solid #ddd;
-            background-color: #fff;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #666;
-            transition: all 0.2s;
-        }
-        .diff-btn.active {
-            border-color: #007bff;
-            background-color: #007bff;
-            color: white;
-        }
-        .setup-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #555;
-        }
-        .input-number {
-            width: 60px;
-            padding: 8px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            text-align: center;
-        }
-        .question-box {
-            background-color: #eef2f7;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .question-text {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        .frame-display {
-            font-size: 36px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .action-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            transition: background 0.2s;
-            box-sizing: border-box;
-        }
-        .action-btn:hover {
-            background-color: #218838;
-        }
-        .result-message {
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            min-height: 27px;
-        }
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
-        
-        .result-screen {
-            text-align: left;
-            background-color: #fff;
-        }
-        .result-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .summary-box {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        .record-badge {
-            display: inline-block;
-            background-color: #ffc107;
-            color: #333;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 8px;
-            animation: pulse 0.6s ease-in-out;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        .record-info {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            color: #856404;
-        }
-        .log-container {
-            max-height: 180px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-        .log-item {
-            padding: 4px 0;
-            border-bottom: 1px dashed #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-        .x-share-btn {
-            background-color: #000000;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: background 0.2s;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-        }
-        .x-share-btn:hover {
-            background-color: #222222;
-        }
-        
-        .x-top-btn {
-            background-color: #000000;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 13px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            transition: background 0.2s;
-            margin-top: 25px;
-        }
-        .x-top-btn:hover {
-            background-color: #222222;
-        }
+        .settings-btn:hover { color: var(--brand); transform: rotate(45deg); }
 
-        .restart-btn {
-            background-color: #6c757d;
+        h1 { font-size: 21px; letter-spacing: 0.02em; color: var(--ink); margin: 0 0 4px 0; font-weight: 800; }
+        .version-tag { font-size: 11px; color: var(--ink-faint); margin-bottom: 16px; display: block; letter-spacing: 0.05em; }
+        .storage-status { font-size: 11px; color: var(--ink-soft); padding: 7px 10px; background-color: #f3f6fb; border-radius: var(--radius-sm); border-left: 3px solid var(--success); margin-bottom: 16px; text-align: left; }
+
+        .section-label { font-size: 11px; color: var(--ink-faint); font-weight: 700; width: 100%; margin-bottom: 8px; text-align: left; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        .mode-select, .difficulty-select, .setup-group {
+            margin-bottom: 16px; display: flex; justify-content: center; align-items: stretch; gap: 8px; flex-wrap: wrap;
         }
-        .restart-btn:hover {
-            background-color: #5a6268;
+        .difficulty-select { display: grid; grid-template-columns: repeat(4, 1fr); }
+
+        .btn {
+            padding: 11px 14px; font-size: 13px;
+            border: 1.5px solid var(--line); background-color: var(--surface);
+            border-radius: 12px; cursor: pointer; font-weight: 700;
+            color: var(--ink-soft); transition: all 0.18s; line-height: 1.35;
         }
-        
-        .secondary-btn {
-            background-color: #17a2b8;
-            margin-bottom: 10px;
+        .btn:hover { border-color: var(--brand); color: var(--brand); }
+        .btn.active { border-color: var(--brand); background-color: var(--brand); color: #fff; box-shadow: var(--shadow-sm); }
+        .mode-select .btn { flex: 1; min-width: 92px; }
+
+        .btn-master {
+            background: linear-gradient(100deg, #2a2f45 0%, #3b2f5e 100%);
+            color: #f0e6c8; border: 1.5px solid #4a4063; font-size: 12.5px;
+            letter-spacing: 0.02em; box-shadow: var(--shadow-sm);
         }
-        .secondary-btn:hover {
-            background-color: #138496;
+        .btn-master:hover { color: #fff; border-color: var(--gold); }
+        .btn-master.active { background: linear-gradient(100deg, #c79a3b 0%, #e0b552 100%); color: #2a2233; border-color: var(--gold); }
+
+        .btn-large {
+            padding: 14px 22px; font-size: 15.5px; width: 100%; margin-bottom: 10px;
+            border: none; border-radius: 12px; cursor: pointer; font-weight: 800;
+            transition: transform 0.12s, filter 0.18s, box-shadow 0.18s; color: white; box-shadow: var(--shadow-sm);
         }
+        .btn-large:active { transform: translateY(1px); }
+        .btn-primary { background-color: var(--brand); }
+        .btn-primary:hover { background-color: var(--brand-dark); }
+        .btn-success { background: linear-gradient(135deg, #1faa59, #169d50); }
+        .btn-success:hover { filter: brightness(1.06); }
+        .btn-secondary { background-color: #2aa9bd; }
+        .btn-secondary:hover { filter: brightness(1.06); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { filter: brightness(1.06); }
+        .btn-gray { background-color: #8893a5; }
+        .btn-gray:hover { filter: brightness(1.06); }
+        .btn-x { background: #0a0a0a; }
+        .btn-x:hover { background: #222; }
+
+        .input-questions { width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 15px; text-align: center; transition: border-color 0.18s; }
+        .input-questions:focus { border-color: var(--brand); outline: none; }
+
+        .demo-warning { font-size: 11px; color: var(--danger); padding: 9px 11px; background-color: #fdecec; border-radius: var(--radius-sm); margin-bottom: 16px; border-left: 3px solid var(--danger); text-align: left; line-height: 1.5; }
+
+        .meta-line { font-size: 12px; color: var(--ink-faint); margin-bottom: 14px; letter-spacing: 0.03em; }
+        .meta-line b { color: var(--ink-soft); font-weight: 700; }
+
+        .timer-display {
+            font-size: 26px; font-weight: 800; color: var(--brand);
+            margin: 14px 0 18px; min-height: 34px;
+            display: flex; align-items: baseline; justify-content: center; gap: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-display .tnum { display: inline-block; text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+        .timer-display .tnum2 { min-width: 1.3em; }
+        .timer-display .tunit { font-size: 16px; font-weight: 700; margin: 0 1px 0 1px; color: var(--brand); opacity: 0.85; }
+        .timer-display .tplus { font-size: 18px; margin: 0 6px; opacity: 0.6; }
+        .timer-display.warning { color: var(--danger); animation: blink 1s infinite; }
+        .timer-display.warning .tunit, .timer-display.warning .tplus { color: var(--danger); }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.35; } }
+
+        .question-box { background: linear-gradient(135deg, #f4f7fc, #eef2f9); padding: 22px 18px; border-radius: 14px; margin-bottom: 22px; border: 1px solid var(--line); }
+        .question-text { font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+        .question-display { font-size: 38px; font-weight: 800; color: var(--brand); margin-top: 6px; letter-spacing: 0.01em; }
+
+        /* 入力欄：中央寄せ＋＋記号を真ん中に */
+        .input-group { display: flex; align-items: flex-end; justify-content: center; gap: 0; margin: 0 auto 18px; max-width: 280px; }
+        .input-cell { width: 104px; }
+        .input-plus { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--ink-faint); font-weight: 700; padding-bottom: 11px; }
+        .input-single { max-width: 160px; margin: 0 auto 18px; }
+        .input-number { width: 100%; padding: 12px 8px; font-size: 18px; border: 1.5px solid var(--line); border-radius: 10px; text-align: center; transition: border-color 0.18s, box-shadow 0.18s; font-variant-numeric: tabular-nums; }
+        .input-number:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 3px var(--brand-soft); }
+        .input-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; display: block; font-weight: 600; }
+
+        .result-message { margin-top: 14px; font-size: 17px; font-weight: 800; min-height: 26px; }
+        .result-message.success { color: var(--success); }
+        .result-message.error { color: var(--danger); }
+
+        .timesheet-container { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; justify-content: center; width: 100%; padding: 0 4px; }
+        .timesheet-side { border: 2px solid #333; background-color: #f9f9f9; flex: 0 0 auto; min-width: min-content; border-radius: 4px; overflow: hidden; }
+        .timesheet-header { display: grid; grid-template-columns: 30px repeat(6, 1fr); border-bottom: 2px solid #333; background-color: #e8f1fb; font-size: 12px; }
+        .timesheet-frame-num { border-right: 1px solid #333; padding: 3px 2px; font-size: 9px; font-weight: bold; text-align: center; }
+        .timesheet-column { border-right: 1px solid #333; padding: 2px; text-align: center; font-size: 9px; background-color: #fff; }
+        .timesheet-grid { display: grid; grid-template-columns: 30px repeat(6, 1fr); }
+        .timesheet-frame-cell { border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; height: 18px; cursor: pointer; background-color: #fff; transition: background-color 0.15s; font-size: 8px; display: flex; align-items: center; justify-content: center; }
+        .timesheet-frame-cell:hover { background-color: #e3f2fd; }
+        .timesheet-frame-cell.selected { background-color: #ff6b6b; color: white; }
+        .timesheet-frame-num-cell { border-right: 2px solid #333; background-color: #f5f5f5; font-size: 8px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 2px; }
+
+        .page-info { font-size: 12px; color: var(--ink-soft); margin: 10px 0; font-weight: 600; }
+        .keymap-hint { font-size: 11px; color: var(--ink-faint); margin: 10px 0; }
+
+        .settings-overlay { position: fixed; inset: 0; background-color: rgba(20,28,48,0.55); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        .settings-modal { background-color: white; padding: 28px; border-radius: var(--radius); max-width: 400px; width: calc(100% - 32px); max-height: 82vh; overflow-y: auto; box-shadow: var(--shadow); }
+        .settings-title { font-size: 19px; font-weight: 800; margin-bottom: 20px; border-bottom: 2px solid var(--brand); padding-bottom: 12px; }
+        .setting-item { margin-bottom: 22px; }
+        .setting-label { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 9px; display: block; }
+        .setting-description { font-size: 11.5px; color: var(--ink-faint); margin-top: 5px; }
+        .setting-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .setting-input { width: 100%; padding: 9px; border: 1.5px solid var(--line); border-radius: 8px; font-size: 14px; text-align: center; }
+
+        .countdown-overlay { position: fixed; inset: 0; background-color: rgba(16,22,40,0.82); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .countdown-display { font-size: 130px; font-weight: 800; color: white; font-variant-numeric: tabular-nums; text-shadow: 0 4px 30px rgba(59,110,245,0.5); }
+
+        .result-title { font-size: 22px; font-weight: 800; color: var(--ink); text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--brand); padding-bottom: 12px; }
+        .summary-box { background: linear-gradient(135deg, #f6f8fc, #eef2f9); padding: 18px; border-radius: 12px; margin-bottom: 16px; font-size: 14px; line-height: 1.9; border: 1px solid var(--line); text-align: left; }
+        .summary-box .row { display: flex; justify-content: space-between; }
+        .summary-box .row b { color: var(--ink-soft); font-weight: 600; }
+        .summary-box .row span { font-weight: 800; color: var(--ink); }
+        .log-container { max-height: 160px; overflow-y: auto; border: 1px solid var(--line); padding: 10px 12px; border-radius: 10px; margin-bottom: 16px; font-size: 12px; }
+        .log-item { padding: 5px 0; border-bottom: 1px dashed var(--line); display: flex; justify-content: space-between; }
+        .log-item:last-child { border-bottom: none; }
+        .block-label { font-size: 11px; font-weight: 700; margin-bottom: 9px; color: var(--ink-faint); letter-spacing: 0.06em; text-transform: uppercase; text-align: left; }
+
+        .footer { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--ink-faint); line-height: 1.7; }
+        .footer a { color: var(--brand); text-decoration: none; font-weight: 600; }
+        .footer a:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
-
-        /* 説明画面のスタイル */
-        .explanation-screen {
-            text-align: left;
-            background-color: #fff;
-        }
-        .explanation-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        .explanation-content {
-            max-height: 500px;
-            overflow-y: auto;
-            font-size: 14px;
-            line-height: 1.8;
-            color: #555;
-        }
-        .explanation-section {
-            margin-bottom: 20px;
-        }
-        .explanation-section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #ddd;
-        }
-        .explanation-list {
-            margin-left: 15px;
-        }
-        .explanation-list li {
-            margin-bottom: 8px;
-        }
-        .explanation-highlight {
-            background-color: #fffacd;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: bold;
-        }
-
-        /* 履歴画面のスタイル */
-        .history-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        .history-item {
-            background-color: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border-left: 4px solid #007bff;
-            font-size: 13px;
-        }
-        .history-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-        .history-item-date {
-            color: #666;
-            font-size: 11px;
-        }
-        .history-item-stats {
-            display: flex;
-            justify-content: space-between;
-            color: #555;
-            gap: 10px;
-        }
-        .empty-history {
-            color: #999;
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-        }
-
-        /* 最高記録表示 */
-        .best-records-box {
-            background-color: #e7f3ff;
-            border: 2px solid #007bff;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
-        }
-        .best-records-title {
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: 8px;
-        }
-        .best-record-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            color: #333;
-        }
-        .best-record-label {
-            color: #666;
-        }
-
-        /* ローディングインジケーター */
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
 
 <div class="game-container">
+    
     <!-- セットアップ画面 -->
     <div id="setup-screen">
+        <button class="settings-btn" onclick="appManager.showSettings()">⚙️</button>
         <h1>タイムシート計算ゲーム</h1>
-        <span class="version-tag">Ver.1.3.0</span>
+        <span class="version-tag">Ver.2.2.0</span>
+        <div id="storage-status" class="storage-status"></div>
         
-        <div id="storage-status-display" class="storage-status"></div>
+        <div class="section-label">ゲームモード</div>
+        <div class="mode-select">
+            <button class="btn active" onclick="appManager.setGameMode('calc-frame', event)">📊<br>フレーム→秒コマ</button>
+            <button class="btn" onclick="appManager.setGameMode('calc-seconds', event)">🔢<br>秒コマ→フレーム</button>
+            <button class="btn" onclick="appManager.setGameMode('checker', event)">🎯<br>タイムシート<br>チェッカー</button>
+        </div>
         
+        <div class="demo-warning">
+            ⚠️ タイムシートチェッカーはデモ版のためUIやバグなど不完全な可能性があります。
+        </div>
+        
+        <div class="section-label">難易度</div>
         <div class="difficulty-select">
-            <button class="diff-btn active" id="diff-beginner" onclick="setDifficulty('beginner')">入門 (〜3秒)</button>
-            <button class="diff-btn" id="diff-easy" onclick="setDifficulty('easy')">簡単 (〜6秒)</button>
-            <button class="diff-btn" id="diff-medium" onclick="setDifficulty('medium')">中級 (〜12秒)</button>
-            <button class="diff-btn" id="diff-hard" onclick="setDifficulty('hard')">上級 (最大)</button>
+            <button class="btn active" onclick="appManager.setDifficulty('beginner', event)">入門<br>〜3秒</button>
+            <button class="btn" onclick="appManager.setDifficulty('easy', event)">簡単<br>〜6秒</button>
+            <button class="btn" onclick="appManager.setDifficulty('medium', event)">中級<br>〜9秒</button>
+            <button class="btn" onclick="appManager.setDifficulty('hard', event)">上級<br>〜12秒</button>
         </div>
+        <button class="btn btn-master" onclick="appManager.startEndless()" style="width: 100%; margin-bottom: 16px;">クセになってんだ、コマを秒に変えるの</button>
+        
+        <div class="section-label">問題数（1〜99）</div>
         <div class="setup-group">
-            <span class="setup-label">問題数 (1〜99):</span>
-            <input type="number" id="input-total-questions" class="input-number" min="1" max="99" value="10">
+            <input type="number" id="input-total-questions" class="input-questions" min="1" max="99" value="10">
         </div>
-        <button class="action-btn" style="background-color: #007bff; margin-bottom: 5px;" onclick="startGame()">ゲーム開始</button>
         
-        <button class="action-btn secondary-btn" onclick="showHistory()">📊 過去の記録を見る</button>
-        
-        <button class="action-btn" style="background-color: #6c757d; margin-bottom: 5px; font-size: 14px; padding: 10px 12px;" onclick="showRulesExplanation()">❓ ゲームルール</button>
-        <button class="action-btn" style="background-color: #6c757d; margin-bottom: 5px; font-size: 14px; padding: 10px 12px;" onclick="showStorageExplanation()">💾 記録機能について</button>
-        
-        <br>
-        <button class="x-top-btn" onclick="shareGameTop()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            共有
-        </button>
+        <button class="btn-large btn-success" onclick="appManager.startCountdown()">ゲーム開始</button>
+        <button class="btn-large btn-secondary" onclick="appManager.showHistory()">📊 過去の記録を見る</button>
+        <button class="btn-large btn-gray" onclick="appManager.showRules()">❓ ゲームルール</button>
+        <button class="btn-large btn-gray" onclick="appManager.showStorage()">💾 記録機能について</button>
     </div>
-
+    
     <!-- ゲーム画面 -->
     <div id="play-screen" class="hidden">
+        <h1 id="game-title">フレーム → 秒コマ</h1>
+        <div class="meta-line"><b id="info-difficulty">入門</b> ・ <span id="info-progress">1/10</span></div>
+        <div id="timer-display" class="timer-display"></div>
         <div class="question-box">
-            <div class="question-text" id="info-progress">1 / 10 問目</div>
-            <div class="frame-display" id="frame-question">72 Fr</div>
+            <div class="question-text" id="question-label">フレーム数:</div>
+            <div id="question-display" class="question-display">72 Fr</div>
         </div>
-        
-        <div style="font-size: 12px; color: #999; margin-bottom: 15px;">難易度: <span id="info-difficulty">入門 (〜3秒)</span></div>
-        
-        <div class="input-group">
-            <div style="flex: 1;">
-                <div style="font-size: 13px; margin-bottom: 5px; color: #666;">秒</div>
-                <input type="number" id="input-seconds" class="input-number" style="width: 100%; box-sizing: border-box;" min="0" inputmode="numeric">
-            </div>
-            <div style="font-size: 18px; color: #999; padding-top: 20px;">+</div>
-            <div style="flex: 1;">
-                <div style="font-size: 13px; margin-bottom: 5px; color: #666;">コマ</div>
-                <input type="number" id="input-frames" class="input-number" style="width: 100%; box-sizing: border-box;" min="0" max="23" inputmode="numeric">
-            </div>
-        </div>
-        
-        <button id="submit-btn" class="action-btn" onclick="handleMainAction()">判定する</button>
+        <div id="input-area"></div>
+        <button id="submit-btn" class="btn-large btn-success" onclick="appManager.handleSubmit()">判定する</button>
+        <button id="deliver-btn" class="btn-large btn-danger hidden" onclick="appManager.endGame()">📦 納品する（終了）</button>
         <div id="result-message" class="result-message"></div>
     </div>
-
+    
+    <!-- タイムシートチェッカー画面 -->
+    <div id="checker-screen" class="hidden">
+        <h1>タイムシート チェッカー</h1>
+        <div class="meta-line"><b id="checker-difficulty">入門</b> ・ <span id="checker-progress">1/10</span></div>
+        <div id="timer-display-checker" class="timer-display"></div>
+        <div class="question-box">
+            <div class="question-text">指定されたフレーム位置をクリックしてください:</div>
+            <div id="target-frame-display" class="question-display">3秒 + 5コマ (77Fr)</div>
+        </div>
+        <div class="page-info"><span id="page-display">ページ 1/1</span></div>
+        <div class="timesheet-container" id="timesheet-container"></div>
+        <div class="keymap-hint">💡 A キー：前ページ | D キー：次ページ</div>
+        <div id="checker-result" class="result-message"></div>
+        <button id="checker-btn" class="btn-large btn-success" onclick="appManager.handleCheckerSubmit()">確認 / 次へ</button>
+    </div>
+    
     <!-- 結果画面 -->
     <div id="result-screen" class="hidden">
         <div class="result-title">ゲーム終了</div>
-
-        <!-- 新記録表示エリア -->
         <div id="record-notification" class="hidden"></div>
-
-        <!-- 最高記録表示 -->
         <div id="best-records-display" class="hidden"></div>
-
-        <div class="summary-box" id="summary-text">
-            難易度: 入門<br>
-            正解数: 10 / 10<br>
-            合計時間: 0.00 秒<br>
-            平均時間: 0.00 秒 / 問
-        </div>
-        
-        <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px;">回答ログ</div>
+        <div class="summary-box" id="summary-text"></div>
+        <div class="block-label">回答ログ</div>
         <div class="log-container" id="log-container"></div>
-        
-        <button id="x-share-btn" class="x-share-btn" onclick="shareOnX()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            結果をXにポストする
-        </button>
-        
-        <button class="action-btn restart-btn" onclick="showSetup()">タイトルに戻る</button>
+        <button class="btn-large btn-x" onclick="appManager.shareOnX()">𝕏 CTシートをスキャンする（Xにポスト）</button>
+        <button class="btn-large btn-danger" onclick="appManager.showSetup()">タイトルに戻る</button>
     </div>
-
-    <!-- ゲームルール説明画面 -->
-    <div id="rules-screen" class="hidden explanation-screen">
-        <div class="explanation-title">❓ ゲームルール</div>
-        <div class="explanation-content">
-            <div class="explanation-section">
-                <div class="explanation-section-title">📹 タイムシート計算とは</div>
-                <p>タイムシート計算は、<span class="explanation-highlight">アニメーション制作</span>で使われる技術です。アニメーターが描いた原画を何フレーム表示するかを計算する作業になります。</p>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🎬 フレーム（コマ）について</div>
-                <ul class="explanation-list">
-                    <li><strong>1秒 = 24フレーム（コマ）</strong></li>
-                    <li>例：3秒 = 72フレーム</li>
-                    <li>例：1秒12コマ = 24 + 12 = 36フレーム</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🎮 ゲームの流れ</div>
-                <ul class="explanation-list">
-                    <li>表示されたフレーム数を「秒 + コマ」に変換します</li>
-                    <li>例：72フレーム → <span class="explanation-highlight">3秒 + 0コマ</span></li>
-                    <li>例：85フレーム → <span class="explanation-highlight">3秒 + 13コマ</span></li>
-                    <li>計算して秒とコマを入力し「判定する」をクリック</li>
-                    <li>正解すると次の問題へ進みます</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">⚡ 難易度説明</div>
-                <ul class="explanation-list">
-                    <li><strong>入門 (〜3秒)</strong>：最大 72フレーム / 初心者向け</li>
-                    <li><strong>簡単 (〜6秒)</strong>：最大 144フレーム / 基礎習得向け</li>
-                    <li><strong>中級 (〜12秒)</strong>：最大 288フレーム / 中級者向け</li>
-                    <li><strong>上級 (最大)</strong>：最大 999フレーム / 上級者向け</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🎯 計算ポイント</div>
-                <ul class="explanation-list">
-                    <li>秒 = フレーム数 ÷ 24（整数部分）</li>
-                    <li>コマ = フレーム数 ÷ 24（余り）</li>
-                    <li>コマは 0〜23 の範囲です</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🏆 スコア計算</div>
-                <ul class="explanation-list">
-                    <li><strong>正解数</strong>：全問題中何問正解したか</li>
-                    <li><strong>合計時間</strong>：全問題に要した時間</li>
-                    <li><strong>平均時間</strong>：1問あたりの平均時間</li>
-                    <li>最も速い平均時間が最高記録になります</li>
-                </ul>
-            </div>
-        </div>
-        <button class="action-btn restart-btn" style="margin-top: 20px;" onclick="showSetup()">戻る</button>
-    </div>
-
-    <!-- 記録機能説明画面 -->
-    <div id="storage-screen" class="hidden explanation-screen">
-        <div class="explanation-title">💾 記録機能について</div>
-        <div class="explanation-content">
-            <div class="explanation-section">
-                <div class="explanation-section-title">📊 自動保存について</div>
-                <ul class="explanation-list">
-                    <li>ゲームを終了すると、自動的に結果が保存されます</li>
-                    <li>保存操作は不要です</li>
-                    <li>ブラウザを閉じても記録は保持されます</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🎖️ 記録される情報</div>
-                <ul class="explanation-list">
-                    <li>難易度（入門・簡単・中級・上級）</li>
-                    <li>正解数 / 総問題数</li>
-                    <li>合計時間と平均時間</li>
-                    <li>プレイ日時</li>
-                    <li>各問題の正解・不正解と回答時間</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🆕 新記録通知</div>
-                <p>以下の場合、結果画面に新記録のバナーが表示されます：</p>
-                <ul class="explanation-list">
-                    <li>その難易度で初めてプレイした時</li>
-                    <li>正解数が前回より増えた時</li>
-                    <li>平均時間が前回より短くなった時</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">📈 「過去の記録を見る」機能</div>
-                <ul class="explanation-list">
-                    <li>全プレイ履歴を新しい順で表示</li>
-                    <li>難易度別の最高記録を表示</li>
-                    <li>最高正解数と最速平均時間を確認可能</li>
-                    <li>日時付きで詳細情報を確認できます</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">💿 データ保存場所</div>
-                <p>このゲームは以下の方法で自動的にデータを保存します：</p>
-                <ul class="explanation-list">
-                    <li><strong>localStorage</strong>：ブラウザのローカルストレージ（優先）</li>
-                    <li><strong>IndexedDB</strong>：より大容量のデータベース（代替）</li>
-                    <li>サーバーには送信されません（プライベート）</li>
-                    <li>ブラウザのキャッシュクリアで削除されます</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🔄 記録のリセット</div>
-                <ul class="explanation-list">
-                    <li>「過去の記録を見る」画面の「記録をリセット」で削除可能</li>
-                    <li>確認ダイアログが表示されます</li>
-                    <li>削除後は元に戻せないため注意してください</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">🌐 GitHub公開版での動作</div>
-                <ul class="explanation-list">
-                    <li>✅ GitHub Pages：完全対応</li>
-                    <li>✅ ローカルダウンロード実行：完全対応</li>
-                    <li>✅ raw.githubusercontent.com：完全対応</li>
-                    <li>⚠️ ファイル直接開く（file://）：一時記録のみ</li>
-                </ul>
-            </div>
-
-            <div class="explanation-section">
-                <div class="explanation-section-title">❓ よくある質問</div>
-                <ul class="explanation-list">
-                    <li><strong>Q: 複数デバイスで同期される？</strong><br>A: されません。各デバイスのブラウザに独立して保存されます。</li>
-                    <li><strong>Q: シークレットモードで記録される？</strong><br>A: ブラウザによっては記録されない場合があります。</li>
-                    <li><strong>Q: データは安全？</strong><br>A: ローカルのみに保存され、サーバーには送信されません。</li>
-                </ul>
-            </div>
-        </div>
-        <button class="action-btn restart-btn" style="margin-top: 20px;" onclick="showSetup()">戻る</button>
-    </div>
-
+    
     <!-- 履歴画面 -->
     <div id="history-screen" class="hidden">
         <div class="result-title">過去の記録</div>
-        
         <div id="best-records-section"></div>
-        
-        <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px;">全ゲーム履歴</div>
-        <div class="history-list" id="history-list"></div>
-
-        <button class="action-btn" style="background-color: #dc3545; margin-bottom: 10px;" onclick="clearHistory()">💾 記録をリセット</button>
-        <button class="action-btn restart-btn" onclick="showSetup()">タイトルに戻る</button>
+        <div class="block-label">全ゲーム履歴</div>
+        <div class="log-container" id="history-list" style="max-height: 300px;"></div>
+        <button class="btn-large btn-danger" style="margin-bottom: 10px;" onclick="appManager.clearHistory()">💾 記録をリセット</button>
+        <button class="btn-large btn-secondary" onclick="appManager.showSetup()">タイトルに戻る</button>
+    </div>
+    
+    <!-- 説明画面テンプレート -->
+    <div id="info-screen" class="hidden">
+        <div class="result-title" id="info-title"></div>
+        <div style="font-size: 13px; line-height: 1.8; text-align: left; max-height: 400px; overflow-y: auto;" id="info-content"></div>
+        <button class="btn-large btn-secondary" onclick="appManager.showSetup()">戻る</button>
+    </div>
+    
+    <!-- 設定画面 -->
+    <div id="settings-modal" class="hidden settings-overlay" onclick="if(event.target===this)appManager.closeSettings()">
+        <div class="settings-modal">
+            <div class="settings-title">⚙️ 設定</div>
+            <div class="setting-item">
+                <label class="setting-label">タイマー表記</label>
+                <div class="setting-options">
+                    <button class="btn" id="timer-frames" onclick="settingsManager.setTimerFormat('frames')" style="flex: 1;">秒コマ</button>
+                    <button class="btn" id="timer-time" onclick="settingsManager.setTimerFormat('time')" style="flex: 1;">時間表記</button>
+                    <button class="btn" id="timer-hidden" onclick="settingsManager.setTimerFormat('hidden')" style="flex: 1;">非表示</button>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">判定結果表示</label>
+                <div class="setting-options">
+                    <button class="btn" id="result-each" onclick="settingsManager.setResultDisplay('each')" style="flex: 1;">毎回表示</button>
+                    <button class="btn" id="result-summary" onclick="settingsManager.setResultDisplay('summary')" style="flex: 1;">まとめて表示</button>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">キーバインディング</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label style="font-size: 12px; color: #666;">前ページ:</label>
+                        <input type="text" id="key-prev" class="setting-input" maxlength="1" value="A">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #666;">次ページ:</label>
+                        <input type="text" id="key-next" class="setting-input" maxlength="1" value="D">
+                    </div>
+                </div>
+            </div>
+            <button class="btn-large btn-primary" onclick="settingsManager.save()">設定を保存</button>
+            <button class="btn-large btn-gray" style="margin-top: 10px;" onclick="appManager.closeSettings()">閉じる</button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Created by <a href="https://x.com/Akira_0m0_" target="_blank">アキラ</a><br>
+        <a href="https://akira0w0.fanbox.cc/" target="_blank">その他ツール</a>
     </div>
 </div>
 
 <script>
-    // ===== ストレージシステム（デュアルストレージ対応） =====
-    class StorageManager {
-        constructor() {
-            this.storageType = 'unknown'; // 'localStorage', 'indexedDB', 'memory'
-            this.db = null;
-            this.memoryStorage = []; // フォールバック用インメモリストレージ
-            this.initStorage();
-        }
-
-        async initStorage() {
-            // localStorageをテスト
-            try {
-                localStorage.setItem('__test__', 'test');
-                localStorage.removeItem('__test__');
-                this.storageType = 'localStorage';
-                console.log('✓ localStorage が使用可能です');
-                this.updateStatusDisplay('localStorage が使用可能');
-                return;
-            } catch (e) {
-                console.warn('✗ localStorage が使用不可:', e);
-            }
-
-            // IndexedDBをテスト
-            try {
-                const idbRequest = indexedDB.open('TimesheetGameDB', 1);
-                await new Promise((resolve, reject) => {
-                    idbRequest.onupgradeneeded = () => {
-                        const db = idbRequest.result;
-                        if (!db.objectStoreNames.contains('records')) {
-                            db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
-                        }
-                    };
-                    idbRequest.onsuccess = () => {
-                        this.db = idbRequest.result;
-                        this.storageType = 'indexedDB';
-                        console.log('✓ IndexedDB が使用可能です');
-                        this.updateStatusDisplay('IndexedDB が使用可能');
-                        resolve();
-                    };
-                    idbRequest.onerror = () => reject(idbRequest.error);
-                });
-                return;
-            } catch (e) {
-                console.warn('✗ IndexedDB が使用不可:', e);
-            }
-
-            // インメモリストレージにフォールバック
-            this.storageType = 'memory';
-            console.warn('⚠ インメモリストレージを使用します（ブラウザ再起動で記録は失われます）');
-            this.updateStatusDisplay('一時的な記録のみ（ブラウザ再起動で初期化）');
-        }
-
-        updateStatusDisplay(message) {
-            const statusDiv = document.getElementById('storage-status-display');
-            if (statusDiv) {
-                statusDiv.textContent = `💾 ${message}`;
-            }
-        }
-
-        async getRecords() {
-            if (this.storageType === 'localStorage') {
-                const data = localStorage.getItem('timesheetGameRecords');
-                return data ? JSON.parse(data) : [];
-            } else if (this.storageType === 'indexedDB') {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction(['records'], 'readonly');
-                    const objectStore = transaction.objectStore('records');
-                    const request = objectStore.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            } else {
-                return this.memoryStorage;
-            }
-        }
-
-        async saveRecord(record) {
-            const recordWithTimestamp = {
-                ...record,
-                timestamp: new Date().toISOString()
-            };
-
-            if (this.storageType === 'localStorage') {
-                const records = await this.getRecords();
-                records.push(recordWithTimestamp);
-                localStorage.setItem('timesheetGameRecords', JSON.stringify(records));
-                return records;
-            } else if (this.storageType === 'indexedDB') {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction(['records'], 'readwrite');
-                    const objectStore = transaction.objectStore('records');
-                    const request = objectStore.add(recordWithTimestamp);
-                    request.onsuccess = async () => {
-                        resolve(await this.getRecords());
-                    };
-                    request.onerror = () => reject(request.error);
-                });
-            } else {
-                this.memoryStorage.push(recordWithTimestamp);
-                return this.memoryStorage;
-            }
-        }
-
-        async clearRecords() {
-            if (this.storageType === 'localStorage') {
-                localStorage.removeItem('timesheetGameRecords');
-            } else if (this.storageType === 'indexedDB') {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction(['records'], 'readwrite');
-                    const objectStore = transaction.objectStore('records');
-                    const request = objectStore.clear();
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                });
-            } else {
-                this.memoryStorage = [];
-            }
-        }
-    }
-
-    const storage = new StorageManager();
-
-    // ゲーム状態管理
-    const gameState = {
-        currentFrames: 0,
-        totalQuestionsSetting: 10,
-        currentQuestionIndex: 0,
-        correctAnswers: 0,
-        currentDifficulty: 'beginner',
-        inputStep: 'seconds',
-        isAwaitingResult: false,
-        gameStartTime: 0,
-        questionStartTime: 0,
-        questionTimes: [],
-        questionLogs: [],
-        shareText: ""
+    // ===== 定数定義 =====
+    const CONFIG = {
+        FRAMES_PER_SECOND: 24,
+        FRAMES_PER_PAGE_SIDE: 72,
+        TIME_LIMIT: 100,
+        ENDLESS_TIME_LIMIT: 10,
+        WARNING_TIME: 10,
+        TIMER_INTERVAL: 16,
+        FOCUS_DELAY: 10,
+        ANIMATION_DELAY: 2000,
+        MAX_FRAMES: { beginner: 72, easy: 144, medium: 216, hard: 288, master: 999 }
     };
 
-    // ===== 記録管理関数 =====
-    async function getBestRecords() {
-        const records = await storage.getRecords();
-        if (records.length === 0) return null;
+    // 難易度の表示ラベル（masterは正式名と短縮名を併用）
+    const DIFF_LABELS = { beginner: '入門', easy: '簡単', medium: '中級', hard: '上級', master: 'クセになってんだ' };
+    const DIFF_LABELS_FULL = { beginner: '入門', easy: '簡単', medium: '中級', hard: '上級', master: 'クセになってんだ、コマを秒に変えるの' };
 
-        const byDifficulty = {};
-        records.forEach(r => {
-            if (!byDifficulty[r.difficulty]) {
-                byDifficulty[r.difficulty] = [];
+    // 計算モードの現在の入力フィールド（秒 or コマ）
+    let currentInputField = 'sec';
+
+    // ===== ストレージ管理 =====
+    const storageManager = (() => {
+        let storageType = 'unknown';
+        let db = null;
+        let memory = [];
+
+        const init = async () => {
+            try {
+                localStorage.setItem('__test__', '1');
+                localStorage.removeItem('__test__');
+                storageType = 'localStorage';
+            } catch {
+                try {
+                    const req = indexedDB.open('TimesheetGameDB', 1);
+                    await new Promise((resolve, reject) => {
+                        req.onupgradeneeded = () => {
+                            if (!req.result.objectStoreNames.contains('records')) {
+                                req.result.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+                            }
+                        };
+                        req.onsuccess = () => { db = req.result; storageType = 'indexedDB'; resolve(); };
+                        req.onerror = reject;
+                    });
+                } catch {
+                    storageType = 'memory';
+                }
             }
-            byDifficulty[r.difficulty].push(r);
-        });
+            updateStatusDisplay();
+        };
 
-        const best = {};
-        Object.keys(byDifficulty).forEach(diff => {
-            const diffRecords = byDifficulty[diff];
-            best[diff] = {
-                maxCorrect: Math.max(...diffRecords.map(r => r.correctAnswers)),
-                minAvgTime: Math.min(...diffRecords.map(r => r.avgTime))
-            };
-        });
-        return best;
-    }
+        const updateStatusDisplay = () => {
+            const el = document.getElementById('storage-status');
+            if (el) {
+                const messages = {
+                    'localStorage': '💾 localStorage が使用可能',
+                    'indexedDB': '💾 IndexedDB が使用可能',
+                    'memory': '⚠ 一時的な記録のみ'
+                };
+                el.textContent = messages[storageType] || '✓ 準備中...';
+            }
+        };
 
-    async function isNewRecord(difficulty, correctAnswers, avgTime) {
-        const records = await storage.getRecords();
-        const diffRecords = records.filter(r => r.difficulty === difficulty);
-        
-        if (diffRecords.length === 0) return { isNew: true, types: ['first'] };
+        const getRecords = async () => {
+            if (storageType === 'localStorage') {
+                const data = localStorage.getItem('timesheetGameRecords');
+                return data ? JSON.parse(data) : [];
+            } else if (storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['records'], 'readonly');
+                    const store = tx.objectStore('records');
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = reject;
+                });
+            }
+            return memory;
+        };
 
-        const types = [];
-        const maxCorrect = Math.max(...diffRecords.map(r => r.correctAnswers));
-        const minAvgTime = Math.min(...diffRecords.map(r => r.avgTime));
-
-        if (correctAnswers > maxCorrect) types.push('正解数');
-        if (avgTime < minAvgTime) types.push('平均時間');
-
-        return { isNew: types.length > 0, types };
-    }
-
-    // ===== ゲーム制御 =====
-    function setDifficulty(level) {
-        gameState.currentDifficulty = level;
-        document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`diff-${level}`).classList.add('active');
-    }
-
-    function showSetup() {
-        document.getElementById('setup-screen').classList.remove('hidden');
-        document.getElementById('play-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.add('hidden');
-        document.getElementById('history-screen').classList.add('hidden');
-        document.getElementById('rules-screen').classList.add('hidden');
-        document.getElementById('storage-screen').classList.add('hidden');
-    }
-
-    function showRulesExplanation() {
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('rules-screen').classList.remove('hidden');
-    }
-
-    function showStorageExplanation() {
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('storage-screen').classList.remove('hidden');
-    }
-
-    async function showHistory() {
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('history-screen').classList.remove('hidden');
-        document.getElementById('rules-screen').classList.add('hidden');
-        document.getElementById('storage-screen').classList.add('hidden');
-        await displayHistory();
-    }
-
-    async function displayHistory() {
-        const records = await storage.getRecords();
-        const historyList = document.getElementById('history-list');
-        const bestRecordsSection = document.getElementById('best-records-section');
-
-        if (records.length === 0) {
-            historyList.innerHTML = '<div class="empty-history">まだゲームをプレイしていません</div>';
-            bestRecordsSection.innerHTML = '';
-            return;
-        }
-
-        // 最高記録表示
-        const bestRecords = await getBestRecords();
-        const diffLabels = { 'beginner': '入門', 'easy': '簡単', 'medium': '中級', 'hard': '上級' };
-        
-        let bestHtml = '<div class="best-records-box"><div class="best-records-title">🏆 難易度別の最高記録</div>';
-        Object.keys(bestRecords).forEach(diff => {
-            bestHtml += `
-                <div style="margin-bottom: 8px;">
-                    <strong>${diffLabels[diff]}</strong>
-                    <div class="best-record-row">
-                        <span class="best-record-label">最高正解数:</span>
-                        <span>${bestRecords[diff].maxCorrect}問</span>
-                    </div>
-                    <div class="best-record-row">
-                        <span class="best-record-label">最速平均:</span>
-                        <span>${bestRecords[diff].minAvgTime.toFixed(2)}秒/問</span>
-                    </div>
-                </div>
-            `;
-        });
-        bestHtml += '</div>';
-        bestRecordsSection.innerHTML = bestHtml;
-
-        // 履歴リスト（新しい順）
-        historyList.innerHTML = '';
-        [...records].reverse().forEach((record, index) => {
-            const date = new Date(record.timestamp);
-            const dateStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-            
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <div class="history-item-header">
-                    <span>${diffLabels[record.difficulty]} (${record.totalQuestions}問)</span>
-                    <span class="history-item-date">${dateStr}</span>
-                </div>
-                <div class="history-item-stats">
-                    <span>✓ ${record.correctAnswers}/${record.totalQuestions}</span>
-                    <span>⏱ ${record.avgTime.toFixed(2)}秒/問</span>
-                    <span>🎯 合計${record.totalTime.toFixed(2)}秒</span>
-                </div>
-            `;
-            historyList.appendChild(item);
-        });
-    }
-
-    async function clearHistory() {
-        if (confirm('本当に全ての記録を削除しますか？')) {
-            await storage.clearRecords();
-            await displayHistory();
-        }
-    }
-
-    function startGame() {
-        const numInput = parseInt(document.getElementById('input-total-questions').value);
-        gameState.totalQuestionsSetting = Math.max(1, Math.min(99, numInput || 10));
-        
-        gameState.currentQuestionIndex = 0;
-        gameState.correctAnswers = 0;
-        gameState.questionTimes = [];
-        gameState.questionLogs = [];
-
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('play-screen').classList.remove('hidden');
-        
-        const diffLabels = { 'beginner': '入門 (〜3秒)', 'easy': '簡単 (〜6秒)', 'medium': '中級 (〜12秒)', 'hard': '上級 (最大)' };
-        document.getElementById('info-difficulty').textContent = diffLabels[gameState.currentDifficulty];
-
-        gameState.gameStartTime = performance.now();
-        nextQuestion();
-    }
-
-    function nextQuestion() {
-        gameState.currentQuestionIndex++;
-        if (gameState.currentQuestionIndex > gameState.totalQuestionsSetting) {
-            endGame();
-            return;
-        }
-
-        document.getElementById('info-progress').textContent = `${gameState.currentQuestionIndex} / ${gameState.totalQuestionsSetting} 問目`;
-
-        let maxFrames = 72;
-        if (gameState.currentDifficulty === 'easy') maxFrames = 144;
-        if (gameState.currentDifficulty === 'medium') maxFrames = 288;
-        if (gameState.currentDifficulty === 'hard') maxFrames = 999;
-
-        gameState.currentFrames = Math.floor(Math.random() * maxFrames) + 1;
-        
-        document.getElementById('frame-question').textContent = gameState.currentFrames + " Fr";
-        document.getElementById('input-seconds').value = '';
-        document.getElementById('input-frames').value = '';
-        document.getElementById('result-message').textContent = '';
-        
-        const btn = document.getElementById('submit-btn');
-        btn.textContent = "判定する";
-        btn.style.backgroundColor = "#28a745";
-
-        gameState.inputStep = 'seconds';
-        gameState.isAwaitingResult = false;
-        
-        setTimeout(() => {
-            document.getElementById('input-seconds').focus();
-        }, 10);
-
-        gameState.questionStartTime = performance.now();
-    }
-
-    function handleMainAction() {
-        if (gameState.isAwaitingResult) {
-            nextQuestion();
-        } else {
-            submitAnswer();
-        }
-    }
-
-    function submitAnswer() {
-        const endTime = performance.now();
-        const timeTaken = ((endTime - gameState.questionStartTime) / 1000).toFixed(2);
-        gameState.questionTimes.push(parseFloat(timeTaken));
-
-        const userSeconds = parseInt(document.getElementById('input-seconds').value) || 0;
-        const userFrames = parseInt(document.getElementById('input-frames').value) || 0;
-
-        const correctSeconds = Math.floor(gameState.currentFrames / 24);
-        const correctRemainingFrames = gameState.currentFrames % 24;
-
-        const resultDiv = document.getElementById('result-message');
-        const isCorrect = (userSeconds === correctSeconds && userFrames === correctRemainingFrames);
-
-        if (isCorrect) {
-            gameState.correctAnswers++;
-            resultDiv.textContent = `⭕ 正解！ (${timeTaken}秒)`;
-            resultDiv.className = "result-message success";
-        } else {
-            resultDiv.textContent = `❌ 不正解... 正解: ${correctSeconds}秒+${correctRemainingFrames}コマ (${timeTaken}秒)`;
-            resultDiv.className = "result-message error";
-        }
-
-        gameState.questionLogs.push({
-            index: gameState.currentQuestionIndex,
-            fr: gameState.currentFrames,
-            isCorrect: isCorrect,
-            time: timeTaken
-        });
-
-        const btn = document.getElementById('submit-btn');
-        btn.textContent = gameState.currentQuestionIndex === gameState.totalQuestionsSetting ? "結果を見る" : "次の問題へ";
-        btn.style.backgroundColor = "#007bff";
-        
-        gameState.isAwaitingResult = true;
-        
-        document.getElementById('input-seconds').blur();
-        document.getElementById('input-frames').blur();
-    }
-
-    async function endGame() {
-        document.getElementById('play-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-
-        const totalTime = gameState.questionTimes.reduce((a, b) => a + b, 0).toFixed(2);
-        const avgTime = (totalTime / gameState.totalQuestionsSetting).toFixed(2);
-
-        const diffLabels = { 'beginner': '入門', 'easy': '簡単', 'medium': '中級', 'hard': '上級' };
-        const diffName = diffLabels[gameState.currentDifficulty];
-
-        // ===== 新記録チェック =====
-        const recordInfo = await isNewRecord(gameState.currentDifficulty, gameState.correctAnswers, parseFloat(avgTime));
-        const notificationDiv = document.getElementById('record-notification');
-        const bestRecordsDiv = document.getElementById('best-records-display');
-
-        if (recordInfo.isNew) {
-            if (recordInfo.types.includes('first')) {
-                notificationDiv.innerHTML = `<div class="record-info">🎉 このゲーム難易度でのプレイ第1号です！おめでとうございます！</div>`;
+        const saveRecord = async (record) => {
+            const data = { ...record, timestamp: new Date().toISOString() };
+            if (storageType === 'localStorage') {
+                const records = await getRecords();
+                records.push(data);
+                localStorage.setItem('timesheetGameRecords', JSON.stringify(records));
+            } else if (storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['records'], 'readwrite');
+                    tx.objectStore('records').add(data);
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
             } else {
-                const badges = recordInfo.types.join('・');
-                notificationDiv.innerHTML = `<div class="record-info">🎊 新記録達成！<span class="record-badge">${badges}で自己新</span></div>`;
+                memory.push(data);
             }
-            notificationDiv.classList.remove('hidden');
-        } else {
-            notificationDiv.classList.add('hidden');
-        }
+        };
 
-        // 最高記録を表示
-        const bestRecords = await getBestRecords();
-        if (bestRecords && bestRecords[gameState.currentDifficulty]) {
-            const best = bestRecords[gameState.currentDifficulty];
-            bestRecordsDiv.innerHTML = `
-                <div class="best-records-box">
-                    <div class="best-records-title">📊 このゲーム難易度の最高記録</div>
-                    <div class="best-record-row">
-                        <span class="best-record-label">最高正解数:</span>
-                        <span>${best.maxCorrect}問</span>
-                    </div>
-                    <div class="best-record-row">
-                        <span class="best-record-label">最速平均:</span>
-                        <span>${best.minAvgTime.toFixed(2)}秒/問</span>
-                    </div>
-                </div>
-            `;
-            bestRecordsDiv.classList.remove('hidden');
-        }
+        const clearAll = async () => {
+            if (storageType === 'localStorage') {
+                localStorage.removeItem('timesheetGameRecords');
+            } else if (storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(['records'], 'readwrite');
+                    tx.objectStore('records').clear();
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
+            } else {
+                memory = [];
+            }
+        };
 
-        const summaryDiv = document.getElementById('summary-text');
-        summaryDiv.innerHTML = `
-            <strong>難易度:</strong> ${diffName}<br>
-            <strong>正解数:</strong> ${gameState.correctAnswers} / ${gameState.totalQuestionsSetting}<br>
-            <strong>合計時間:</strong> ${totalTime} 秒<br>
-            <strong>平均時間:</strong> ${avgTime} 秒 / 問
-        `;
+        return { init, getRecords, saveRecord, clearAll };
+    })();
 
-        const logContainer = document.getElementById('log-container');
-        logContainer.innerHTML = '';
-        gameState.questionLogs.forEach(log => {
-            const item = document.createElement('div');
-            item.className = 'log-item';
-            item.innerHTML = `
-                <span>第${log.index}問 (${log.fr}Fr)</span>
-                <span style="color: ${log.isCorrect ? '#28a745' : '#dc3545'}">
-                    ${log.isCorrect ? '⭕' : '❌'} ${log.time}秒
-                </span>
-            `;
-            logContainer.appendChild(item);
-        });
+    // ===== 設定管理 =====
+    const settingsManager = (() => {
+        const defaults = { timerFormat: 'frames', resultDisplay: 'each', keyPrev: 'A', keyNext: 'D' };
+        let settings = { ...defaults };
 
-        // ===== 記録を保存 =====
-        await storage.saveRecord({
-            difficulty: gameState.currentDifficulty,
-            correctAnswers: gameState.correctAnswers,
-            totalQuestions: gameState.totalQuestionsSetting,
-            totalTime: parseFloat(totalTime),
-            avgTime: parseFloat(avgTime),
-            logs: gameState.questionLogs
-        });
+        const load = () => {
+            const saved = localStorage.getItem('timesheetGameSettings');
+            settings = saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+            applyUI();
+        };
 
-        const gameUrl = window.location.href;
-        gameState.shareText = `【タイムシート計算ゲーム】\n難易度: ${diffName}\n正解数: ${gameState.correctAnswers}/${gameState.totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
-    }
+        const save = () => {
+            const activeTimer = document.querySelector('[id^="timer-"].active');
+            if (activeTimer) settings.timerFormat = activeTimer.id.replace('timer-', '');
+            const activeResult = document.querySelector('[id^="result-"].active');
+            if (activeResult) settings.resultDisplay = activeResult.id.replace('result-', '');
+            settings.keyPrev = (document.getElementById('key-prev').value || 'A').toUpperCase();
+            settings.keyNext = (document.getElementById('key-next').value || 'D').toUpperCase();
+            localStorage.setItem('timesheetGameSettings', JSON.stringify(settings));
+            appManager.closeSettings();
+        };
 
-    function shareOnX() {
-        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(gameState.shareText)}`;
-        window.open(xUrl, '_blank', 'noopener,noreferrer');
-    }
+        const applyUI = () => {
+            document.getElementById(`timer-${settings.timerFormat}`)?.classList.add('active');
+            document.getElementById(`result-${settings.resultDisplay}`)?.classList.add('active');
+            document.getElementById('key-prev').value = settings.keyPrev;
+            document.getElementById('key-next').value = settings.keyNext;
+        };
 
-    function shareGameTop() {
-        const gameUrl = window.location.href;
-        const topShareText = `アニメ制作のタイムシート計算（フレーム換算）トレーニングゲーム🎮\n\nこちらからプレイ👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
-        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(topShareText)}`;
-        window.open(xUrl, '_blank', 'noopener,noreferrer');
-    }
+        const setTimerFormat = (format) => {
+            document.querySelectorAll('[id^="timer-"]').forEach(el => el.classList.remove('active'));
+            document.getElementById(`timer-${format}`).classList.add('active');
+        };
 
-    // ===== キーボード操作 =====
-    document.addEventListener('keydown', function(e) {
-        if (document.getElementById('play-screen').classList.contains('hidden')) return;
+        const setResultDisplay = (display) => {
+            document.querySelectorAll('[id^="result-"]').forEach(el => el.classList.remove('active'));
+            document.getElementById(`result-${display}`).classList.add('active');
+        };
 
-        if (e.key === 'Enter') {
-            e.preventDefault();
+        return { load, save, setTimerFormat, setResultDisplay, get: () => settings };
+    })();
 
-            if (gameState.isAwaitingResult) {
-                nextQuestion();
+    // ===== UI管理 =====
+    const uiManager = (() => {
+        const screens = ['setup-screen', 'play-screen', 'checker-screen', 'result-screen', 'history-screen', 'info-screen'];
+
+        const hideAll = () => screens.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+        const show = (screenId) => { hideAll(); document.getElementById(screenId)?.classList.remove('hidden'); };
+
+        const updateTimer = (seconds, settings) => {
+            const elements = [document.getElementById('timer-display'), document.getElementById('timer-display-checker')];
+            let html = '';
+            let plain = '';
+            if (settings.timerFormat === 'frames') {
+                let totalSecs = Math.floor(seconds);
+                let frames = Math.round((seconds - totalSecs) * CONFIG.FRAMES_PER_SECOND);
+                if (frames >= CONFIG.FRAMES_PER_SECOND) { totalSecs += 1; frames = 0; }
+                // 固定幅スパンで桁数変化によるガタつきを防止
+                html = `<span class="tnum">${totalSecs}</span><span class="tunit">秒</span><span class="tplus">+</span><span class="tnum tnum2">${String(frames).padStart(2, '0')}</span><span class="tunit">コマ</span>`;
+            } else if (settings.timerFormat === 'time') {
+                const secs = Math.floor(seconds % 60);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const hours = Math.floor(seconds / 3600);
+                plain = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+            elements.forEach(el => {
+                if (el) {
+                    if (html) el.innerHTML = html; else el.textContent = plain;
+                    el.style.visibility = settings.timerFormat === 'hidden' ? 'hidden' : 'visible';
+                }
+            });
+        };
+
+        // エンドレスモード用：残り秒数のカウントダウン表示（常に表示）
+        const updateCountdown = (remaining) => {
+            const el = document.getElementById('timer-display');
+            if (!el) return;
+            const secs = Math.floor(remaining);
+            const frames = Math.round((remaining - secs) * CONFIG.FRAMES_PER_SECOND);
+            const shownFrames = Math.min(frames, CONFIG.FRAMES_PER_SECOND - 1);
+            el.innerHTML = `<span class="tnum">${secs}</span><span class="tunit">秒</span><span class="tplus">+</span><span class="tnum tnum2">${String(shownFrames).padStart(2, '0')}</span><span class="tunit">コマ</span>`;
+            el.style.visibility = 'visible';
+        };
+
+        return { hideAll, show, updateTimer, updateCountdown };
+    })();
+
+    // ===== ゲーム管理 =====
+    const appManager = (() => {
+        let state = {
+            difficulty: 'beginner',
+            mode: 'calc-frame',
+            currentFrame: 0,
+            questionIndex: 0,
+            correctCount: 0,
+            totalQuestions: 10,
+            timeElapsed: 0,
+            timerInterval: null,
+            gameStartTime: 0,
+            awaitingNext: false,
+            isEndless: false,
+            logs: [],
+            checkerPage: 0,
+            checkerPages: 1,
+            checkerSelected: null
+        };
+
+        const setGameMode = (mode, evt) => {
+            state.mode = mode;
+            document.querySelectorAll('.mode-select .btn').forEach(b => b.classList.remove('active'));
+            const target = evt?.target || (typeof event !== 'undefined' ? event.target : null);
+            if (target) target.classList.add('active');
+        };
+
+        const setDifficulty = (diff, evt) => {
+            state.difficulty = diff;
+            document.querySelectorAll('.difficulty-select .btn, .btn-master').forEach(b => b.classList.remove('active'));
+            const target = evt?.target || (typeof event !== 'undefined' ? event.target : null);
+            if (target) target.classList.add('active');
+        };
+
+        const showSetup = () => uiManager.show('setup-screen');
+        const showHistory = async () => { uiManager.show('history-screen'); await displayHistory(); };
+        const showRules = () => { document.getElementById('info-title').textContent = '❓ ゲームルール'; showInfo('rules'); };
+        const showStorage = () => { document.getElementById('info-title').textContent = '💾 記録機能について'; showInfo('storage'); };
+
+        const showInfo = (type) => {
+            document.getElementById('info-content').innerHTML = type === 'rules' ? 
+                `<div><strong style="color: #007bff;">📹 タイムシート計算とは</strong><p>アニメーション制作で使われる技術です。原画を何フレーム表示するかを計算します。</p></div>
+                 <div><strong style="color: #007bff;">🎬 フレーム（コマ）について</strong><p>• <strong>1秒 = 24フレーム（コマ）</strong><br>• 例：3秒 = 72フレーム<br>• 例：1秒12コマ = 36フレーム</p></div>` :
+                `<p>自動保存でゲーム結果が保存されます。ブラウザを閉じても記録は残ります。</p>
+                 <p><strong>記録される情報：</strong><br>難易度、正解数、時間、プレイ日時など</p>`;
+            uiManager.show('info-screen');
+        };
+
+        const showSettings = () => { settingsManager.load(); document.getElementById('settings-modal').classList.remove('hidden'); };
+        const closeSettings = () => document.getElementById('settings-modal').classList.add('hidden');
+
+        const startCountdown = () => {
+            // master難易度は強制エンドレスモード
+            state.isEndless = state.difficulty === 'master';
+            if (state.isEndless) {
+                state.totalQuestions = Infinity;
+            } else {
+                const num = parseInt(document.getElementById('input-total-questions').value) || 10;
+                state.totalQuestions = Math.max(1, Math.min(99, num));
+            }
+            state.questionIndex = 0;
+            state.correctCount = 0;
+            state.logs = [];
+            state.timeElapsed = 0;
+
+            let count = 3;
+            const overlay = document.createElement('div');
+            overlay.className = 'countdown-overlay';
+            overlay.innerHTML = `<div class="countdown-display">${count}</div>`;
+            document.body.appendChild(overlay);
+
+            const interval = setInterval(() => {
+                count--;
+                overlay.querySelector('.countdown-display').textContent = count > 0 ? count : 'GO!';
+                if (count < 0) {
+                    clearInterval(interval);
+                    overlay.remove();
+                    startGame();
+                }
+            }, 1000);
+        };
+
+        // 「クセになってんだ」ボタン：押したら即エンドレス開始
+        const startEndless = () => {
+            state.difficulty = 'master';
+            // 難易度ボタンのactive表示を更新（masterボタンを選択状態に）
+            document.querySelectorAll('.difficulty-select .btn, .btn-master').forEach(b => b.classList.remove('active'));
+            document.querySelector('.btn-master')?.classList.add('active');
+            // エンドレスはタイムシートチェッカー非対応のため計算モードに固定
+            if (state.mode === 'checker') {
+                state.mode = 'calc-frame';
+                document.querySelectorAll('.mode-select .btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.mode-select .btn')?.classList.add('active');
+            }
+            startCountdown();
+        };
+
+        const startGame = async () => {
+            const diffs = DIFF_LABELS;
+            if (state.mode === 'checker') {
+                document.getElementById('checker-difficulty').textContent = diffs[state.difficulty];
+                uiManager.show('checker-screen');
+                await generateCheckerProblem();
+            } else {
+                document.getElementById('info-difficulty').textContent = diffs[state.difficulty];
+                // エンドレスモードの納品ボタン表示切り替え
+                const deliverBtn = document.getElementById('deliver-btn');
+                if (state.isEndless) {
+                    deliverBtn.classList.remove('hidden');
+                } else {
+                    deliverBtn.classList.add('hidden');
+                }
+                uiManager.show('play-screen');
+                generateCalcProblem();
+            }
+            startTimer();
+        };
+
+        const generateCalcProblem = () => {
+            state.questionIndex++;
+            if (state.questionIndex > state.totalQuestions) return endGame();
+
+            document.getElementById('info-progress').textContent = state.isEndless
+                ? `🔥 エンドレス ${state.questionIndex}問目`
+                : `${state.questionIndex}/${state.totalQuestions}`;
+            state.currentFrame = Math.floor(Math.random() * CONFIG.MAX_FRAMES[state.difficulty]) + 1;
+            state.timeElapsed = 0;
+
+            const isFrameMode = state.mode === 'calc-frame';
+            document.getElementById('game-title').textContent = isFrameMode ? 'フレーム → 秒コマ' : '秒コマ → フレーム';
+            document.getElementById('question-label').textContent = isFrameMode ? 'フレーム数:' : '秒とコマ:';
+
+            if (isFrameMode) {
+                document.getElementById('question-display').textContent = `${state.currentFrame} Fr`;
+                document.getElementById('input-area').innerHTML = `
+                    <div class="input-group">
+                        <div class="input-cell"><label class="input-label">秒</label><input type="number" id="input-sec" class="input-number" min="0" placeholder="0" inputmode="numeric"></div>
+                        <div class="input-plus">+</div>
+                        <div class="input-cell"><label class="input-label">コマ</label><input type="number" id="input-frame" class="input-number" min="0" max="23" placeholder="0" inputmode="numeric"></div>
+                    </div>`;
+            } else {
+                const sec = Math.floor(state.currentFrame / CONFIG.FRAMES_PER_SECOND);
+                const frame = state.currentFrame % CONFIG.FRAMES_PER_SECOND;
+                document.getElementById('question-display').textContent = `${sec}秒 + ${frame}コマ`;
+                document.getElementById('input-area').innerHTML = `<div class="input-single"><label class="input-label">フレーム数</label><input type="number" id="input-total" class="input-number" min="0" placeholder="0" inputmode="numeric"></div>`;
+            }
+
+            document.getElementById('result-message').textContent = '';
+            document.getElementById('result-message').className = 'result-message';
+            document.getElementById('submit-btn').textContent = '判定する';
+            document.getElementById('submit-btn').classList.remove('warning');
+            state.awaitingNext = false;
+            currentInputField = 'sec';
+            setTimeout(() => document.getElementById(isFrameMode ? 'input-sec' : 'input-total')?.focus(), CONFIG.FOCUS_DELAY);
+        };
+
+        const generateCheckerProblem = async () => {
+            state.questionIndex++;
+            if (state.questionIndex > state.totalQuestions) return endGame();
+
+            document.getElementById('checker-progress').textContent = `${state.questionIndex}/${state.totalQuestions}`;
+            state.currentFrame = Math.floor(Math.random() * CONFIG.MAX_FRAMES[state.difficulty]) + 1;
+            state.checkerPage = 0;
+            state.checkerSelected = null;
+            state.timeElapsed = 0;
+            state.checkerPages = Math.ceil(state.currentFrame / (CONFIG.FRAMES_PER_PAGE_SIDE * 2));
+
+            const sec = Math.floor(state.currentFrame / CONFIG.FRAMES_PER_SECOND);
+            const frame = state.currentFrame % CONFIG.FRAMES_PER_SECOND;
+            document.getElementById('target-frame-display').textContent = `${sec}秒 + ${frame}コマ (${state.currentFrame}Fr)`;
+            document.getElementById('checker-result').textContent = '';
+            document.getElementById('checker-result').className = 'result-message';
+            document.getElementById('checker-btn').classList.remove('warning');
+            drawTimesheet();
+        };
+
+        const drawTimesheet = () => {
+            const container = document.getElementById('timesheet-container');
+            container.innerHTML = '';
+            const leftStart = state.checkerPage * CONFIG.FRAMES_PER_PAGE_SIDE * 2 + 1;
+            const rightStart = leftStart + CONFIG.FRAMES_PER_PAGE_SIDE;
+            [leftStart, rightStart].forEach(start => container.appendChild(createTimesheetSide(start)));
+            document.getElementById('page-display').textContent = `ページ ${state.checkerPage + 1}/${state.checkerPages}`;
+        };
+
+        const createTimesheetSide = (startFrame) => {
+            const side = document.createElement('div');
+            side.className = 'timesheet-side';
+            const header = document.createElement('div');
+            header.className = 'timesheet-header';
+            header.innerHTML = `<div class="timesheet-frame-num">Fr</div>` + Array.from({ length: 6 }, (_, i) => `<div class="timesheet-column">${String.fromCharCode(65 + i)}</div>`).join('');
+            side.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = '30px repeat(6, 1fr)';
+            grid.style.gap = '0';
+
+            for (let i = 0; i < CONFIG.FRAMES_PER_PAGE_SIDE; i++) {
+                const frameNum = startFrame + i;
+                const displayNum = (frameNum - 1) % CONFIG.FRAMES_PER_PAGE_SIDE + 1;
+                const numCell = document.createElement('div');
+                numCell.className = 'timesheet-frame-num-cell';
+                numCell.textContent = displayNum;
+                grid.appendChild(numCell);
+
+                for (let col = 0; col < 6; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'timesheet-frame-cell';
+                    cell.style.borderRight = col === 4 ? '2px solid #333' : '1px solid #ddd';
+                    cell.dataset.frame = frameNum;
+                    if (state.checkerSelected === frameNum) cell.classList.add('selected');
+                    cell.onclick = () => {
+                        document.querySelectorAll('.timesheet-frame-cell.selected').forEach(c => c.classList.remove('selected'));
+                        cell.classList.add('selected');
+                        state.checkerSelected = frameNum;
+                    };
+                    grid.appendChild(cell);
+                }
+            }
+            side.appendChild(grid);
+            return side;
+        };
+
+        const handleSubmit = (timeout = false) => {
+            // 結果表示中（判定済み）の場合は次の問題へ
+            if (state.awaitingNext) {
+                state.awaitingNext = false;
+                if (state.questionIndex < state.totalQuestions) {
+                    state.timeElapsed = 0;
+                    startTimer();
+                    generateCalcProblem();
+                } else {
+                    endGame();
+                }
                 return;
             }
 
-            if (gameState.inputStep === 'seconds') {
-                gameState.inputStep = 'frames';
-                document.getElementById('input-frames').focus();
-            } else if (gameState.inputStep === 'frames') {
-                submitAnswer();
+            if (!state.timerInterval) return;
+            stopTimer();
+            state.timeElapsed = (performance.now() - state.gameStartTime) / 1000;
+
+            const isFrameMode = state.mode === 'calc-frame';
+            let isCorrect = false;
+
+            if (isFrameMode) {
+                const sec = parseInt(document.getElementById('input-sec')?.value) || 0;
+                const frame = parseInt(document.getElementById('input-frame')?.value) || 0;
+                const correctSec = Math.floor(state.currentFrame / CONFIG.FRAMES_PER_SECOND);
+                const correctFrame = state.currentFrame % CONFIG.FRAMES_PER_SECOND;
+                isCorrect = !timeout && sec === correctSec && frame === correctFrame;
+                if (!isCorrect) document.getElementById('result-message').textContent = timeout ? `⏱ 時間切れ (正解: ${correctSec}秒+${correctFrame}コマ)` : `❌ 不正解 (正解: ${correctSec}秒+${correctFrame}コマ)`;
+            } else {
+                const total = parseInt(document.getElementById('input-total')?.value) || 0;
+                isCorrect = !timeout && total === state.currentFrame;
+                if (!isCorrect) document.getElementById('result-message').textContent = timeout ? `⏱ 時間切れ (正解: ${state.currentFrame}フレーム)` : `❌ 不正解 (正解: ${state.currentFrame}フレーム)`;
+            }
+
+            if (isCorrect) {
+                state.correctCount++;
+                document.getElementById('result-message').textContent = '⭕ 正解！';
+                document.getElementById('result-message').className = 'result-message success';
+            } else {
+                document.getElementById('result-message').className = 'result-message error';
+            }
+
+            state.logs.push({ index: state.questionIndex, frame: state.currentFrame, correct: isCorrect, time: state.timeElapsed });
+
+            // エンドレスモード：常に自動で次の問題へ（10秒カウントダウンが再スタート）
+            if (state.isEndless) {
+                setTimeout(() => {
+                    state.timeElapsed = 0;
+                    startTimer();
+                    generateCalcProblem();
+                }, 700);
+                return;
+            }
+
+            const isLast = state.questionIndex === state.totalQuestions;
+
+            if (settingsManager.get().resultDisplay === 'summary') {
+                // まとめて表示：自動で次へ進む（結果は最後にまとめて表示）
+                setTimeout(() => {
+                    if (!isLast) {
+                        state.timeElapsed = 0;
+                        startTimer();
+                        generateCalcProblem();
+                    } else {
+                        endGame();
+                    }
+                }, 600);
+            } else {
+                // 毎回表示：ユーザーが「次へ」ボタン/Enterで進む
+                state.awaitingNext = true;
+                document.getElementById('submit-btn').textContent = isLast ? '結果を見る' : '次へ →';
+            }
+        };
+
+        const handleCheckerSubmit = async () => {
+            if (state.checkerSelected === null) {
+                document.getElementById('checker-result').textContent = 'フレーム位置を選択してください';
+                document.getElementById('checker-result').className = 'result-message error';
+                return;
+            }
+            stopTimer();
+            state.timeElapsed = (performance.now() - state.gameStartTime) / 1000;
+            const isCorrect = state.checkerSelected === state.currentFrame;
+            if (isCorrect) {
+                state.correctCount++;
+                document.getElementById('checker-result').textContent = '⭕ 正解！';
+                document.getElementById('checker-result').className = 'result-message success';
+            } else {
+                const sec = Math.floor(state.currentFrame / CONFIG.FRAMES_PER_SECOND);
+                const frame = state.currentFrame % CONFIG.FRAMES_PER_SECOND;
+                document.getElementById('checker-result').textContent = `❌ 不正解 (正解: ${sec}秒+${frame}コマ)`;
+                document.getElementById('checker-result').className = 'result-message error';
+            }
+            state.logs.push({ index: state.questionIndex, frame: state.currentFrame, correct: isCorrect, time: state.timeElapsed });
+            await new Promise(r => setTimeout(r, CONFIG.ANIMATION_DELAY));
+            if (state.questionIndex < state.totalQuestions) {
+                state.timeElapsed = 0;
+                startTimer();
+                await generateCheckerProblem();
+            } else {
+                endGame();
+            }
+        };
+
+        const startTimer = () => {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.gameStartTime = performance.now();
+            state.timerInterval = setInterval(() => {
+                state.timeElapsed = (performance.now() - state.gameStartTime) / 1000;
+
+                if (state.isEndless) {
+                    // エンドレスモード：10秒からのカウントダウン表示
+                    const remaining = Math.max(0, CONFIG.ENDLESS_TIME_LIMIT - state.timeElapsed);
+                    uiManager.updateCountdown(remaining);
+                    if (remaining <= 3) {
+                        document.getElementById('submit-btn')?.classList.add('warning');
+                    }
+                    if (state.timeElapsed >= CONFIG.ENDLESS_TIME_LIMIT) {
+                        // 10秒切れ：時間切れとして次の問題へ（不正解扱い）
+                        handleSubmit(true);
+                    }
+                } else {
+                    uiManager.updateTimer(state.timeElapsed, settingsManager.get());
+                    if (state.timeElapsed >= CONFIG.TIME_LIMIT - CONFIG.WARNING_TIME) {
+                        document.getElementById('submit-btn')?.classList.add('warning');
+                        document.getElementById('checker-btn')?.classList.add('warning');
+                    }
+                    if (state.timeElapsed >= CONFIG.TIME_LIMIT) {
+                        if (state.mode === 'checker') {
+                            clearInterval(state.timerInterval);
+                            state.timerInterval = null;
+                            if (state.checkerSelected === null) state.checkerSelected = -1;
+                            handleCheckerSubmit();
+                        } else {
+                            handleSubmit();
+                        }
+                    }
+                }
+            }, CONFIG.TIMER_INTERVAL);
+        };
+
+        const stopTimer = () => {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+        };
+
+        const endGame = async () => {
+            stopTimer();
+            uiManager.show('result-screen');
+            const totalTime = state.logs.reduce((sum, log) => sum + log.time, 0);
+            const attempted = state.logs.length;
+            // 平均尺は「正解した問題」だけで算出
+            const correctLogs = state.logs.filter(log => log.correct);
+            const correctTime = correctLogs.reduce((sum, log) => sum + log.time, 0);
+            const avgTime = correctLogs.length > 0 ? correctTime / correctLogs.length : 0;
+            const avgDisplay = correctLogs.length > 0 ? `${avgTime.toFixed(2)} 秒` : '納品拒否';
+            const diffs = DIFF_LABELS;
+            const modes = { 'calc-frame': 'フレーム→秒コマ', 'calc-seconds': '秒コマ→フレーム', checker: 'タイムシート' };
+            // エンドレスは「修正数 / 挑戦数」、通常は「修正数 / 全問題数」
+            const denom = state.isEndless ? attempted : state.totalQuestions;
+
+            document.getElementById('summary-text').innerHTML = `
+                <div class="row"><b>難易度</b><span>${diffs[state.difficulty]}${state.isEndless ? '（エンドレス）' : ''}</span></div>
+                <div class="row"><b>モード</b><span>${modes[state.mode]}</span></div>
+                <div class="row"><b>修正シート数</b><span>${state.correctCount} / ${denom}</span></div>
+                <div class="row"><b>全尺</b><span>${totalTime.toFixed(2)} 秒</span></div>
+                <div class="row"><b>平均尺（1カット）</b><span>${avgDisplay}</span></div>`;
+
+            const logEl = document.getElementById('log-container');
+            logEl.innerHTML = state.logs.map(log => `<div class="log-item"><span>第${log.index}カット (${log.frame}Fr)</span><span style="color: ${log.correct ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">${log.correct ? '⭕' : '❌'} ${log.time.toFixed(2)}秒</span></div>`).join('');
+
+            await storageManager.saveRecord({ difficulty: state.difficulty, mode: state.mode, correct: state.correctCount, total: denom, totalTime, avgTime, endless: state.isEndless });
+        };
+
+        const clearHistory = async () => {
+            if (confirm('本当に全ての記録を削除しますか？')) {
+                await storageManager.clearAll();
+                await displayHistory();
+            }
+        };
+
+        const shareOnX = () => {
+            const url = 'https://akira-t5.github.io/timesheet-game/';
+            const diffLabel = DIFF_LABELS_FULL[state.difficulty] || DIFF_LABELS[state.difficulty];
+            const modes = { 'calc-frame': 'フレーム→秒コマ', 'calc-seconds': '秒コマ→フレーム', checker: 'タイムシート' };
+            const totalTime = state.logs.reduce((sum, log) => sum + log.time, 0);
+            const attempted = state.logs.length;
+            const correctLogs = state.logs.filter(log => log.correct);
+            const correctTime = correctLogs.reduce((sum, log) => sum + log.time, 0);
+            const avgDisplay = correctLogs.length > 0 ? `${(correctTime / correctLogs.length).toFixed(2)}秒` : '納品拒否';
+            const denom = state.isEndless ? attempted : state.totalQuestions;
+            const lines = [
+                '【タイムシート計算ゲーム】',
+                `難易度：${diffLabel}${state.isEndless ? '（エンドレス）' : ''}`,
+                `モード：${modes[state.mode]}`,
+                `修正シート数：${state.correctCount}/${denom}`,
+                `全尺：${totalTime.toFixed(2)}秒`,
+                `平均尺（1カット）：${avgDisplay}`,
+                '',
+                '▼あなたも挑戦！',
+                url,
+                '#タイムシート計算 #アニメ制作'
+            ];
+            const text = lines.join('\n');
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+        };
+
+        const drawTimesheetProxy = () => drawTimesheet();
+
+        // キーボード操作用の状態アクセサ
+        const getState = () => state;
+        const setCheckerPage = (page) => { state.checkerPage = page; };
+
+        return { setGameMode, setDifficulty, showSetup, showHistory, showRules, showStorage, showSettings, closeSettings, startCountdown, startEndless, handleSubmit, handleCheckerSubmit, endGame, clearHistory, shareOnX, drawTimesheetProxy, getState, setCheckerPage };
+    })();
+
+    const displayHistory = async () => {
+        const records = await storageManager.getRecords();
+        const list = document.getElementById('history-list');
+        if (records.length === 0) {
+            list.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">まだゲームをプレイしていません</div>';
+            return;
+        }
+        const diffs = DIFF_LABELS;
+        list.innerHTML = [...records].reverse().map(r => `<div class="log-item"><div><strong>${diffs[r.difficulty]}</strong><br><span style="font-size: 11px; color: var(--ink-faint);">${new Date(r.timestamp).toLocaleDateString('ja-JP')}</span></div><div style="text-align: right;">修正 ${r.correct}/${r.total}<br>平均尺 ${r.correct > 0 ? r.avgTime.toFixed(2) + '秒' : '納品拒否'}</div></div>`).join('');
+    };
+
+    // ===== キーボード操作 =====
+    document.addEventListener('keydown', (e) => {
+        const settings = settingsManager.get();
+        const state = appManager.getState();
+
+        // 計算モード中のキー操作
+        if (!document.getElementById('play-screen').classList.contains('hidden')) {
+            // Enterキー：秒→コマ自動切り替え or 判定実行 or 次へ進む
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // 結果表示中（毎回表示モード）なら次へ進む
+                if (state.awaitingNext) {
+                    appManager.handleSubmit();
+                    return;
+                }
+                if (state.mode === 'calc-frame') {
+                    if (currentInputField === 'sec') {
+                        currentInputField = 'frame';
+                        document.getElementById('input-frame')?.focus();
+                    } else {
+                        appManager.handleSubmit();
+                    }
+                } else if (state.mode === 'calc-seconds') {
+                    appManager.handleSubmit();
+                }
+            }
+
+            // 左右矢印キー：入力フィールド切り替え（結果表示中は無効）
+            if (state.mode === 'calc-frame' && !state.awaitingNext) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    currentInputField = 'sec';
+                    document.getElementById('input-sec')?.focus();
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    currentInputField = 'frame';
+                    document.getElementById('input-frame')?.focus();
+                }
+            }
+        }
+
+        // チェッカーモード中：A/Dキーでページ切り替え
+        if (!document.getElementById('checker-screen').classList.contains('hidden')) {
+            if (e.key.toUpperCase() === settings.keyPrev) {
+                e.preventDefault();
+                if (state.checkerPage > 0) {
+                    appManager.setCheckerPage(state.checkerPage - 1);
+                    appManager.drawTimesheetProxy();
+                }
+            } else if (e.key.toUpperCase() === settings.keyNext) {
+                e.preventDefault();
+                if (state.checkerPage < state.checkerPages - 1) {
+                    appManager.setCheckerPage(state.checkerPage + 1);
+                    appManager.drawTimesheetProxy();
+                }
             }
         }
     });
 
-    document.getElementById('input-seconds').addEventListener('focus', function() {
-        if (!gameState.isAwaitingResult) {
-            gameState.inputStep = 'seconds';
-        }
-    });
+    // 入力フィールドのフォーカス管理
+    document.addEventListener('focus', (e) => {
+        if (e.target.id === 'input-sec') currentInputField = 'sec';
+        if (e.target.id === 'input-frame') currentInputField = 'frame';
+    }, true);
 
-    document.getElementById('input-frames').addEventListener('focus', function() {
-        if (!gameState.isAwaitingResult) {
-            gameState.inputStep = 'frames';
-        }
-    });
+    // ===== 初期化 =====
+    storageManager.init();
+    settingsManager.load();
+
+    // 問題数のマウススクロール対応
+    const questionInput = document.getElementById('input-total-questions');
+    questionInput.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const current = parseInt(questionInput.value) || 10;
+        const newValue = e.deltaY < 0 ? Math.min(99, current + 1) : Math.max(1, current - 1);
+        questionInput.value = newValue;
+    }, { passive: false });
 </script>
 
 </body>

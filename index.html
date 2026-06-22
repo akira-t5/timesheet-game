@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タイムシート計算トレーニング Ver.1.0.8</title>
+    <title>タイムシート計算トレーニング Ver.1.3.0</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -21,6 +21,8 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             text-align: center;
             width: 440px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         h1 {
             font-size: 20px;
@@ -33,6 +35,15 @@
             font-weight: normal;
             margin-bottom: 15px;
             display: block;
+        }
+        .storage-status {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+            padding: 6px 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
         }
         .difficulty-select, .setup-group {
             margin-bottom: 15px;
@@ -105,6 +116,7 @@
             width: 100%;
             font-weight: bold;
             transition: background 0.2s;
+            box-sizing: border-box;
         }
         .action-btn:hover {
             background-color: #218838;
@@ -136,6 +148,30 @@
             margin-bottom: 15px;
             font-size: 16px;
             line-height: 1.6;
+        }
+        .record-badge {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+            animation: pulse 0.6s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .record-info {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #856404;
         }
         .log-container {
             max-height: 180px;
@@ -175,7 +211,6 @@
             background-color: #222222;
         }
         
-        /* 【変更】トップページ用に少し大きく調整した黒背景の「共有」ボタン */
         .x-top-btn {
             background-color: #000000;
             color: white;
@@ -189,7 +224,7 @@
             gap: 6px;
             font-weight: bold;
             transition: background 0.2s;
-            margin-top: 25px; /* 一番下に配置するための余白 */
+            margin-top: 25px;
         }
         .x-top-btn:hover {
             background-color: #222222;
@@ -201,15 +236,149 @@
         .restart-btn:hover {
             background-color: #5a6268;
         }
+        
+        .secondary-btn {
+            background-color: #17a2b8;
+            margin-bottom: 10px;
+        }
+        .secondary-btn:hover {
+            background-color: #138496;
+        }
+
         .hidden { display: none !important; }
+
+        /* 説明画面のスタイル */
+        .explanation-screen {
+            text-align: left;
+            background-color: #fff;
+        }
+        .explanation-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .explanation-content {
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #555;
+        }
+        .explanation-section {
+            margin-bottom: 20px;
+        }
+        .explanation-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        .explanation-list {
+            margin-left: 15px;
+        }
+        .explanation-list li {
+            margin-bottom: 8px;
+        }
+        .explanation-highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        /* 履歴画面のスタイル */
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .history-item {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+            font-size: 13px;
+        }
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .history-item-date {
+            color: #666;
+            font-size: 11px;
+        }
+        .history-item-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+            gap: 10px;
+        }
+        .empty-history {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        /* 最高記録表示 */
+        .best-records-box {
+            background-color: #e7f3ff;
+            border: 2px solid #007bff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .best-records-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 8px;
+        }
+        .best-record-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: #333;
+        }
+        .best-record-label {
+            color: #666;
+        }
+
+        /* ローディングインジケーター */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
 <div class="game-container">
+    <!-- セットアップ画面 -->
     <div id="setup-screen">
         <h1>タイムシート計算ゲーム</h1>
-        <span class="version-tag">Ver.1.0.8</span>
+        <span class="version-tag">Ver.1.3.0</span>
+        
+        <div id="storage-status-display" class="storage-status"></div>
         
         <div class="difficulty-select">
             <button class="diff-btn active" id="diff-beginner" onclick="setDifficulty('beginner')">入門 (〜3秒)</button>
@@ -223,6 +392,11 @@
         </div>
         <button class="action-btn" style="background-color: #007bff; margin-bottom: 5px;" onclick="startGame()">ゲーム開始</button>
         
+        <button class="action-btn secondary-btn" onclick="showHistory()">📊 過去の記録を見る</button>
+        
+        <button class="action-btn" style="background-color: #6c757d; margin-bottom: 5px; font-size: 14px; padding: 10px 12px;" onclick="showRulesExplanation()">❓ ゲームルール</button>
+        <button class="action-btn" style="background-color: #6c757d; margin-bottom: 5px; font-size: 14px; padding: 10px 12px;" onclick="showStorageExplanation()">💾 記録機能について</button>
+        
         <br>
         <button class="x-top-btn" onclick="shareGameTop()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -230,26 +404,49 @@
         </button>
     </div>
 
+    <!-- ゲーム画面 -->
     <div id="play-screen" class="hidden">
         <div class="question-box">
-            <div class="question-text"><span id="info-difficulty">入門</span> | <span id="info-progress">1 / 10 問目</span></div>
-            <div class="frame-display" id="frame-question">0 Fr</div>
+            <div class="question-text" id="info-progress">1 / 10 問目</div>
+            <div class="frame-display" id="frame-question">72 Fr</div>
         </div>
-
+        
+        <div style="font-size: 12px; color: #999; margin-bottom: 15px;">難易度: <span id="info-difficulty">入門 (〜3秒)</span></div>
+        
         <div class="input-group">
-            <input type="number" id="input-seconds" class="input-number" style="width:70px; font-size:18px;" min="0" placeholder="0">
-            <span style="font-size:18px; font-weight:bold;">秒</span>
-            <input type="number" id="input-frames" class="input-number" style="width:70px; font-size:18px;" min="0" max="23" placeholder="0">
-            <span style="font-size:18px; font-weight:bold;">コマ</span>
+            <div style="flex: 1;">
+                <div style="font-size: 13px; margin-bottom: 5px; color: #666;">秒</div>
+                <input type="number" id="input-seconds" class="input-number" style="width: 100%; box-sizing: border-box;" min="0" inputmode="numeric">
+            </div>
+            <div style="font-size: 18px; color: #999; padding-top: 20px;">+</div>
+            <div style="flex: 1;">
+                <div style="font-size: 13px; margin-bottom: 5px; color: #666;">コマ</div>
+                <input type="number" id="input-frames" class="input-number" style="width: 100%; box-sizing: border-box;" min="0" max="23" inputmode="numeric">
+            </div>
         </div>
-
+        
         <button id="submit-btn" class="action-btn" onclick="handleMainAction()">判定する</button>
-        <div class="result-message" id="result-message"></div>
+        <div id="result-message" class="result-message"></div>
     </div>
 
-    <div id="result-screen" class="result-screen hidden">
-        <div class="result-title">🎉 終了！結果発表</div>
-        <div class="summary-box" id="summary-text"></div>
+    <!-- 結果画面 -->
+    <div id="result-screen" class="hidden">
+        <div class="result-title">ゲーム終了</div>
+
+        <!-- 新記録表示エリア -->
+        <div id="record-notification" class="hidden"></div>
+
+        <!-- 最高記録表示 -->
+        <div id="best-records-display" class="hidden"></div>
+
+        <div class="summary-box" id="summary-text">
+            難易度: 入門<br>
+            正解数: 10 / 10<br>
+            合計時間: 0.00 秒<br>
+            平均時間: 0.00 秒 / 問
+        </div>
+        
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px;">回答ログ</div>
         <div class="log-container" id="log-container"></div>
         
         <button id="x-share-btn" class="x-share-btn" onclick="shareOnX()">
@@ -259,25 +456,350 @@
         
         <button class="action-btn restart-btn" onclick="showSetup()">タイトルに戻る</button>
     </div>
+
+    <!-- ゲームルール説明画面 -->
+    <div id="rules-screen" class="hidden explanation-screen">
+        <div class="explanation-title">❓ ゲームルール</div>
+        <div class="explanation-content">
+            <div class="explanation-section">
+                <div class="explanation-section-title">📹 タイムシート計算とは</div>
+                <p>タイムシート計算は、<span class="explanation-highlight">アニメーション制作</span>で使われる技術です。アニメーターが描いた原画を何フレーム表示するかを計算する作業になります。</p>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🎬 フレーム（コマ）について</div>
+                <ul class="explanation-list">
+                    <li><strong>1秒 = 24フレーム（コマ）</strong></li>
+                    <li>例：3秒 = 72フレーム</li>
+                    <li>例：1秒12コマ = 24 + 12 = 36フレーム</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🎮 ゲームの流れ</div>
+                <ul class="explanation-list">
+                    <li>表示されたフレーム数を「秒 + コマ」に変換します</li>
+                    <li>例：72フレーム → <span class="explanation-highlight">3秒 + 0コマ</span></li>
+                    <li>例：85フレーム → <span class="explanation-highlight">3秒 + 13コマ</span></li>
+                    <li>計算して秒とコマを入力し「判定する」をクリック</li>
+                    <li>正解すると次の問題へ進みます</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">⚡ 難易度説明</div>
+                <ul class="explanation-list">
+                    <li><strong>入門 (〜3秒)</strong>：最大 72フレーム / 初心者向け</li>
+                    <li><strong>簡単 (〜6秒)</strong>：最大 144フレーム / 基礎習得向け</li>
+                    <li><strong>中級 (〜12秒)</strong>：最大 288フレーム / 中級者向け</li>
+                    <li><strong>上級 (最大)</strong>：最大 999フレーム / 上級者向け</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🎯 計算ポイント</div>
+                <ul class="explanation-list">
+                    <li>秒 = フレーム数 ÷ 24（整数部分）</li>
+                    <li>コマ = フレーム数 ÷ 24（余り）</li>
+                    <li>コマは 0〜23 の範囲です</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🏆 スコア計算</div>
+                <ul class="explanation-list">
+                    <li><strong>正解数</strong>：全問題中何問正解したか</li>
+                    <li><strong>合計時間</strong>：全問題に要した時間</li>
+                    <li><strong>平均時間</strong>：1問あたりの平均時間</li>
+                    <li>最も速い平均時間が最高記録になります</li>
+                </ul>
+            </div>
+        </div>
+        <button class="action-btn restart-btn" style="margin-top: 20px;" onclick="showSetup()">戻る</button>
+    </div>
+
+    <!-- 記録機能説明画面 -->
+    <div id="storage-screen" class="hidden explanation-screen">
+        <div class="explanation-title">💾 記録機能について</div>
+        <div class="explanation-content">
+            <div class="explanation-section">
+                <div class="explanation-section-title">📊 自動保存について</div>
+                <ul class="explanation-list">
+                    <li>ゲームを終了すると、自動的に結果が保存されます</li>
+                    <li>保存操作は不要です</li>
+                    <li>ブラウザを閉じても記録は保持されます</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🎖️ 記録される情報</div>
+                <ul class="explanation-list">
+                    <li>難易度（入門・簡単・中級・上級）</li>
+                    <li>正解数 / 総問題数</li>
+                    <li>合計時間と平均時間</li>
+                    <li>プレイ日時</li>
+                    <li>各問題の正解・不正解と回答時間</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🆕 新記録通知</div>
+                <p>以下の場合、結果画面に新記録のバナーが表示されます：</p>
+                <ul class="explanation-list">
+                    <li>その難易度で初めてプレイした時</li>
+                    <li>正解数が前回より増えた時</li>
+                    <li>平均時間が前回より短くなった時</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">📈 「過去の記録を見る」機能</div>
+                <ul class="explanation-list">
+                    <li>全プレイ履歴を新しい順で表示</li>
+                    <li>難易度別の最高記録を表示</li>
+                    <li>最高正解数と最速平均時間を確認可能</li>
+                    <li>日時付きで詳細情報を確認できます</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">💿 データ保存場所</div>
+                <p>このゲームは以下の方法で自動的にデータを保存します：</p>
+                <ul class="explanation-list">
+                    <li><strong>localStorage</strong>：ブラウザのローカルストレージ（優先）</li>
+                    <li><strong>IndexedDB</strong>：より大容量のデータベース（代替）</li>
+                    <li>サーバーには送信されません（プライベート）</li>
+                    <li>ブラウザのキャッシュクリアで削除されます</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🔄 記録のリセット</div>
+                <ul class="explanation-list">
+                    <li>「過去の記録を見る」画面の「記録をリセット」で削除可能</li>
+                    <li>確認ダイアログが表示されます</li>
+                    <li>削除後は元に戻せないため注意してください</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">🌐 GitHub公開版での動作</div>
+                <ul class="explanation-list">
+                    <li>✅ GitHub Pages：完全対応</li>
+                    <li>✅ ローカルダウンロード実行：完全対応</li>
+                    <li>✅ raw.githubusercontent.com：完全対応</li>
+                    <li>⚠️ ファイル直接開く（file://）：一時記録のみ</li>
+                </ul>
+            </div>
+
+            <div class="explanation-section">
+                <div class="explanation-section-title">❓ よくある質問</div>
+                <ul class="explanation-list">
+                    <li><strong>Q: 複数デバイスで同期される？</strong><br>A: されません。各デバイスのブラウザに独立して保存されます。</li>
+                    <li><strong>Q: シークレットモードで記録される？</strong><br>A: ブラウザによっては記録されない場合があります。</li>
+                    <li><strong>Q: データは安全？</strong><br>A: ローカルのみに保存され、サーバーには送信されません。</li>
+                </ul>
+            </div>
+        </div>
+        <button class="action-btn restart-btn" style="margin-top: 20px;" onclick="showSetup()">戻る</button>
+    </div>
+
+    <!-- 履歴画面 -->
+    <div id="history-screen" class="hidden">
+        <div class="result-title">過去の記録</div>
+        
+        <div id="best-records-section"></div>
+        
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px;">全ゲーム履歴</div>
+        <div class="history-list" id="history-list"></div>
+
+        <button class="action-btn" style="background-color: #dc3545; margin-bottom: 10px;" onclick="clearHistory()">💾 記録をリセット</button>
+        <button class="action-btn restart-btn" onclick="showSetup()">タイトルに戻る</button>
+    </div>
 </div>
 
 <script>
-    let currentFrames = 0;
-    let totalQuestionsSetting = 10;
-    let currentQuestionIndex = 0;
-    let correctAnswers = 0;
-    let currentDifficulty = 'beginner';
+    // ===== ストレージシステム（デュアルストレージ対応） =====
+    class StorageManager {
+        constructor() {
+            this.storageType = 'unknown'; // 'localStorage', 'indexedDB', 'memory'
+            this.db = null;
+            this.memoryStorage = []; // フォールバック用インメモリストレージ
+            this.initStorage();
+        }
 
-    let gameStartTime = 0;
-    let questionStartTime = 0;
-    let questionTimes = [];
-    let questionLogs = [];
-    let shareText = "";
-    
-    let currentStep = 0; 
+        async initStorage() {
+            // localStorageをテスト
+            try {
+                localStorage.setItem('__test__', 'test');
+                localStorage.removeItem('__test__');
+                this.storageType = 'localStorage';
+                console.log('✓ localStorage が使用可能です');
+                this.updateStatusDisplay('localStorage が使用可能');
+                return;
+            } catch (e) {
+                console.warn('✗ localStorage が使用不可:', e);
+            }
 
+            // IndexedDBをテスト
+            try {
+                const idbRequest = indexedDB.open('TimesheetGameDB', 1);
+                await new Promise((resolve, reject) => {
+                    idbRequest.onupgradeneeded = () => {
+                        const db = idbRequest.result;
+                        if (!db.objectStoreNames.contains('records')) {
+                            db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+                        }
+                    };
+                    idbRequest.onsuccess = () => {
+                        this.db = idbRequest.result;
+                        this.storageType = 'indexedDB';
+                        console.log('✓ IndexedDB が使用可能です');
+                        this.updateStatusDisplay('IndexedDB が使用可能');
+                        resolve();
+                    };
+                    idbRequest.onerror = () => reject(idbRequest.error);
+                });
+                return;
+            } catch (e) {
+                console.warn('✗ IndexedDB が使用不可:', e);
+            }
+
+            // インメモリストレージにフォールバック
+            this.storageType = 'memory';
+            console.warn('⚠ インメモリストレージを使用します（ブラウザ再起動で記録は失われます）');
+            this.updateStatusDisplay('一時的な記録のみ（ブラウザ再起動で初期化）');
+        }
+
+        updateStatusDisplay(message) {
+            const statusDiv = document.getElementById('storage-status-display');
+            if (statusDiv) {
+                statusDiv.textContent = `💾 ${message}`;
+            }
+        }
+
+        async getRecords() {
+            if (this.storageType === 'localStorage') {
+                const data = localStorage.getItem('timesheetGameRecords');
+                return data ? JSON.parse(data) : [];
+            } else if (this.storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['records'], 'readonly');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            } else {
+                return this.memoryStorage;
+            }
+        }
+
+        async saveRecord(record) {
+            const recordWithTimestamp = {
+                ...record,
+                timestamp: new Date().toISOString()
+            };
+
+            if (this.storageType === 'localStorage') {
+                const records = await this.getRecords();
+                records.push(recordWithTimestamp);
+                localStorage.setItem('timesheetGameRecords', JSON.stringify(records));
+                return records;
+            } else if (this.storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['records'], 'readwrite');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.add(recordWithTimestamp);
+                    request.onsuccess = async () => {
+                        resolve(await this.getRecords());
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            } else {
+                this.memoryStorage.push(recordWithTimestamp);
+                return this.memoryStorage;
+            }
+        }
+
+        async clearRecords() {
+            if (this.storageType === 'localStorage') {
+                localStorage.removeItem('timesheetGameRecords');
+            } else if (this.storageType === 'indexedDB') {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['records'], 'readwrite');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.clear();
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            } else {
+                this.memoryStorage = [];
+            }
+        }
+    }
+
+    const storage = new StorageManager();
+
+    // ゲーム状態管理
+    const gameState = {
+        currentFrames: 0,
+        totalQuestionsSetting: 10,
+        currentQuestionIndex: 0,
+        correctAnswers: 0,
+        currentDifficulty: 'beginner',
+        inputStep: 'seconds',
+        isAwaitingResult: false,
+        gameStartTime: 0,
+        questionStartTime: 0,
+        questionTimes: [],
+        questionLogs: [],
+        shareText: ""
+    };
+
+    // ===== 記録管理関数 =====
+    async function getBestRecords() {
+        const records = await storage.getRecords();
+        if (records.length === 0) return null;
+
+        const byDifficulty = {};
+        records.forEach(r => {
+            if (!byDifficulty[r.difficulty]) {
+                byDifficulty[r.difficulty] = [];
+            }
+            byDifficulty[r.difficulty].push(r);
+        });
+
+        const best = {};
+        Object.keys(byDifficulty).forEach(diff => {
+            const diffRecords = byDifficulty[diff];
+            best[diff] = {
+                maxCorrect: Math.max(...diffRecords.map(r => r.correctAnswers)),
+                minAvgTime: Math.min(...diffRecords.map(r => r.avgTime))
+            };
+        });
+        return best;
+    }
+
+    async function isNewRecord(difficulty, correctAnswers, avgTime) {
+        const records = await storage.getRecords();
+        const diffRecords = records.filter(r => r.difficulty === difficulty);
+        
+        if (diffRecords.length === 0) return { isNew: true, types: ['first'] };
+
+        const types = [];
+        const maxCorrect = Math.max(...diffRecords.map(r => r.correctAnswers));
+        const minAvgTime = Math.min(...diffRecords.map(r => r.avgTime));
+
+        if (correctAnswers > maxCorrect) types.push('正解数');
+        if (avgTime < minAvgTime) types.push('平均時間');
+
+        return { isNew: types.length > 0, types };
+    }
+
+    // ===== ゲーム制御 =====
     function setDifficulty(level) {
-        currentDifficulty = level;
+        gameState.currentDifficulty = level;
         document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`diff-${level}`).classList.add('active');
     }
@@ -286,44 +808,129 @@
         document.getElementById('setup-screen').classList.remove('hidden');
         document.getElementById('play-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('history-screen').classList.add('hidden');
+        document.getElementById('rules-screen').classList.add('hidden');
+        document.getElementById('storage-screen').classList.add('hidden');
+    }
+
+    function showRulesExplanation() {
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('rules-screen').classList.remove('hidden');
+    }
+
+    function showStorageExplanation() {
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('storage-screen').classList.remove('hidden');
+    }
+
+    async function showHistory() {
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('history-screen').classList.remove('hidden');
+        document.getElementById('rules-screen').classList.add('hidden');
+        document.getElementById('storage-screen').classList.add('hidden');
+        await displayHistory();
+    }
+
+    async function displayHistory() {
+        const records = await storage.getRecords();
+        const historyList = document.getElementById('history-list');
+        const bestRecordsSection = document.getElementById('best-records-section');
+
+        if (records.length === 0) {
+            historyList.innerHTML = '<div class="empty-history">まだゲームをプレイしていません</div>';
+            bestRecordsSection.innerHTML = '';
+            return;
+        }
+
+        // 最高記録表示
+        const bestRecords = await getBestRecords();
+        const diffLabels = { 'beginner': '入門', 'easy': '簡単', 'medium': '中級', 'hard': '上級' };
+        
+        let bestHtml = '<div class="best-records-box"><div class="best-records-title">🏆 難易度別の最高記録</div>';
+        Object.keys(bestRecords).forEach(diff => {
+            bestHtml += `
+                <div style="margin-bottom: 8px;">
+                    <strong>${diffLabels[diff]}</strong>
+                    <div class="best-record-row">
+                        <span class="best-record-label">最高正解数:</span>
+                        <span>${bestRecords[diff].maxCorrect}問</span>
+                    </div>
+                    <div class="best-record-row">
+                        <span class="best-record-label">最速平均:</span>
+                        <span>${bestRecords[diff].minAvgTime.toFixed(2)}秒/問</span>
+                    </div>
+                </div>
+            `;
+        });
+        bestHtml += '</div>';
+        bestRecordsSection.innerHTML = bestHtml;
+
+        // 履歴リスト（新しい順）
+        historyList.innerHTML = '';
+        [...records].reverse().forEach((record, index) => {
+            const date = new Date(record.timestamp);
+            const dateStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <div class="history-item-header">
+                    <span>${diffLabels[record.difficulty]} (${record.totalQuestions}問)</span>
+                    <span class="history-item-date">${dateStr}</span>
+                </div>
+                <div class="history-item-stats">
+                    <span>✓ ${record.correctAnswers}/${record.totalQuestions}</span>
+                    <span>⏱ ${record.avgTime.toFixed(2)}秒/問</span>
+                    <span>🎯 合計${record.totalTime.toFixed(2)}秒</span>
+                </div>
+            `;
+            historyList.appendChild(item);
+        });
+    }
+
+    async function clearHistory() {
+        if (confirm('本当に全ての記録を削除しますか？')) {
+            await storage.clearRecords();
+            await displayHistory();
+        }
     }
 
     function startGame() {
         const numInput = parseInt(document.getElementById('input-total-questions').value);
-        totalQuestionsSetting = Math.max(1, Math.min(99, numInput || 10));
+        gameState.totalQuestionsSetting = Math.max(1, Math.min(99, numInput || 10));
         
-        currentQuestionIndex = 0;
-        correctAnswers = 0;
-        questionTimes = [];
-        questionLogs = [];
+        gameState.currentQuestionIndex = 0;
+        gameState.correctAnswers = 0;
+        gameState.questionTimes = [];
+        gameState.questionLogs = [];
 
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('play-screen').classList.remove('hidden');
         
         const diffLabels = { 'beginner': '入門 (〜3秒)', 'easy': '簡単 (〜6秒)', 'medium': '中級 (〜12秒)', 'hard': '上級 (最大)' };
-        document.getElementById('info-difficulty').textContent = diffLabels[currentDifficulty];
+        document.getElementById('info-difficulty').textContent = diffLabels[gameState.currentDifficulty];
 
-        gameStartTime = performance.now();
+        gameState.gameStartTime = performance.now();
         nextQuestion();
     }
 
     function nextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex > totalQuestionsSetting) {
+        gameState.currentQuestionIndex++;
+        if (gameState.currentQuestionIndex > gameState.totalQuestionsSetting) {
             endGame();
             return;
         }
 
-        document.getElementById('info-progress').textContent = `${currentQuestionIndex} / ${totalQuestionsSetting} 問目`;
+        document.getElementById('info-progress').textContent = `${gameState.currentQuestionIndex} / ${gameState.totalQuestionsSetting} 問目`;
 
         let maxFrames = 72;
-        if (currentDifficulty === 'easy') maxFrames = 144;
-        if (currentDifficulty === 'medium') maxFrames = 288;
-        if (currentDifficulty === 'hard') maxFrames = 999;
+        if (gameState.currentDifficulty === 'easy') maxFrames = 144;
+        if (gameState.currentDifficulty === 'medium') maxFrames = 288;
+        if (gameState.currentDifficulty === 'hard') maxFrames = 999;
 
-        currentFrames = Math.floor(Math.random() * maxFrames) + 1;
+        gameState.currentFrames = Math.floor(Math.random() * maxFrames) + 1;
         
-        document.getElementById('frame-question').textContent = currentFrames + " Fr";
+        document.getElementById('frame-question').textContent = gameState.currentFrames + " Fr";
         document.getElementById('input-seconds').value = '';
         document.getElementById('input-frames').value = '';
         document.getElementById('result-message').textContent = '';
@@ -332,36 +939,40 @@
         btn.textContent = "判定する";
         btn.style.backgroundColor = "#28a745";
 
-        currentStep = 0;
-        document.getElementById('input-seconds').focus();
+        gameState.inputStep = 'seconds';
+        gameState.isAwaitingResult = false;
+        
+        setTimeout(() => {
+            document.getElementById('input-seconds').focus();
+        }, 10);
 
-        questionStartTime = performance.now();
+        gameState.questionStartTime = performance.now();
     }
 
     function handleMainAction() {
-        if (currentStep === 2) {
+        if (gameState.isAwaitingResult) {
             nextQuestion();
         } else {
-            checkAnswer();
+            submitAnswer();
         }
     }
 
-    function checkAnswer() {
+    function submitAnswer() {
         const endTime = performance.now();
-        const timeTaken = ((endTime - questionStartTime) / 1000).toFixed(2);
-        questionTimes.push(parseFloat(timeTaken));
+        const timeTaken = ((endTime - gameState.questionStartTime) / 1000).toFixed(2);
+        gameState.questionTimes.push(parseFloat(timeTaken));
 
         const userSeconds = parseInt(document.getElementById('input-seconds').value) || 0;
         const userFrames = parseInt(document.getElementById('input-frames').value) || 0;
 
-        const correctSeconds = Math.floor(currentFrames / 24);
-        const correctRemainingFrames = currentFrames % 24;
+        const correctSeconds = Math.floor(gameState.currentFrames / 24);
+        const correctRemainingFrames = gameState.currentFrames % 24;
 
         const resultDiv = document.getElementById('result-message');
-        let isCorrect = (userSeconds === correctSeconds && userFrames === correctRemainingFrames);
+        const isCorrect = (userSeconds === correctSeconds && userFrames === correctRemainingFrames);
 
         if (isCorrect) {
-            correctAnswers++;
+            gameState.correctAnswers++;
             resultDiv.textContent = `⭕ 正解！ (${timeTaken}秒)`;
             resultDiv.className = "result-message success";
         } else {
@@ -369,41 +980,81 @@
             resultDiv.className = "result-message error";
         }
 
-        questionLogs.push({
-            index: currentQuestionIndex,
-            fr: currentFrames,
+        gameState.questionLogs.push({
+            index: gameState.currentQuestionIndex,
+            fr: gameState.currentFrames,
             isCorrect: isCorrect,
             time: timeTaken
         });
 
         const btn = document.getElementById('submit-btn');
-        btn.textContent = currentQuestionIndex === totalQuestionsSetting ? "結果を見る" : "次の問題へ";
+        btn.textContent = gameState.currentQuestionIndex === gameState.totalQuestionsSetting ? "結果を見る" : "次の問題へ";
         btn.style.backgroundColor = "#007bff";
         
-        currentStep = 2;
+        gameState.isAwaitingResult = true;
+        
+        document.getElementById('input-seconds').blur();
+        document.getElementById('input-frames').blur();
     }
 
-    function endGame() {
+    async function endGame() {
         document.getElementById('play-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
 
-        const totalTime = questionTimes.reduce((a, b) => a + b, 0).toFixed(2);
-        const avgTime = (totalTime / totalQuestionsSetting).toFixed(2);
+        const totalTime = gameState.questionTimes.reduce((a, b) => a + b, 0).toFixed(2);
+        const avgTime = (totalTime / gameState.totalQuestionsSetting).toFixed(2);
 
         const diffLabels = { 'beginner': '入門', 'easy': '簡単', 'medium': '中級', 'hard': '上級' };
-        const diffName = diffLabels[currentDifficulty];
+        const diffName = diffLabels[gameState.currentDifficulty];
+
+        // ===== 新記録チェック =====
+        const recordInfo = await isNewRecord(gameState.currentDifficulty, gameState.correctAnswers, parseFloat(avgTime));
+        const notificationDiv = document.getElementById('record-notification');
+        const bestRecordsDiv = document.getElementById('best-records-display');
+
+        if (recordInfo.isNew) {
+            if (recordInfo.types.includes('first')) {
+                notificationDiv.innerHTML = `<div class="record-info">🎉 このゲーム難易度でのプレイ第1号です！おめでとうございます！</div>`;
+            } else {
+                const badges = recordInfo.types.join('・');
+                notificationDiv.innerHTML = `<div class="record-info">🎊 新記録達成！<span class="record-badge">${badges}で自己新</span></div>`;
+            }
+            notificationDiv.classList.remove('hidden');
+        } else {
+            notificationDiv.classList.add('hidden');
+        }
+
+        // 最高記録を表示
+        const bestRecords = await getBestRecords();
+        if (bestRecords && bestRecords[gameState.currentDifficulty]) {
+            const best = bestRecords[gameState.currentDifficulty];
+            bestRecordsDiv.innerHTML = `
+                <div class="best-records-box">
+                    <div class="best-records-title">📊 このゲーム難易度の最高記録</div>
+                    <div class="best-record-row">
+                        <span class="best-record-label">最高正解数:</span>
+                        <span>${best.maxCorrect}問</span>
+                    </div>
+                    <div class="best-record-row">
+                        <span class="best-record-label">最速平均:</span>
+                        <span>${best.minAvgTime.toFixed(2)}秒/問</span>
+                    </div>
+                </div>
+            `;
+            bestRecordsDiv.classList.remove('hidden');
+        }
 
         const summaryDiv = document.getElementById('summary-text');
         summaryDiv.innerHTML = `
             <strong>難易度:</strong> ${diffName}<br>
-            <strong>正解数:</strong> ${correctAnswers} / ${totalQuestionsSetting}<br>
+            <strong>正解数:</strong> ${gameState.correctAnswers} / ${gameState.totalQuestionsSetting}<br>
             <strong>合計時間:</strong> ${totalTime} 秒<br>
             <strong>平均時間:</strong> ${avgTime} 秒 / 問
         `;
 
         const logContainer = document.getElementById('log-container');
         logContainer.innerHTML = '';
-        questionLogs.forEach(log => {
+        gameState.questionLogs.forEach(log => {
             const item = document.createElement('div');
             item.className = 'log-item';
             item.innerHTML = `
@@ -415,12 +1066,22 @@
             logContainer.appendChild(item);
         });
 
+        // ===== 記録を保存 =====
+        await storage.saveRecord({
+            difficulty: gameState.currentDifficulty,
+            correctAnswers: gameState.correctAnswers,
+            totalQuestions: gameState.totalQuestionsSetting,
+            totalTime: parseFloat(totalTime),
+            avgTime: parseFloat(avgTime),
+            logs: gameState.questionLogs
+        });
+
         const gameUrl = window.location.href;
-        shareText = `【タイムシート計算ゲーム】\n難易度: ${diffName}\n正解数: ${correctAnswers}/${totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
+        gameState.shareText = `【タイムシート計算ゲーム】\n難易度: ${diffName}\n正解数: ${gameState.correctAnswers}/${gameState.totalQuestionsSetting}\n合計時間: ${totalTime}秒（平均: ${avgTime}秒/問）\n\nゲームをプレイする👇\n${gameUrl}\n#タイムシート計算ゲーム #アニメ制作`;
     }
 
     function shareOnX() {
-        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(shareText)}`;
+        const xUrl = `https://twitter.com/share?text=${encodeURIComponent(gameState.shareText)}`;
         window.open(xUrl, '_blank', 'noopener,noreferrer');
     }
 
@@ -431,36 +1092,36 @@
         window.open(xUrl, '_blank', 'noopener,noreferrer');
     }
 
-    document.getElementById('input-seconds').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            currentStep = 1;
-            document.getElementById('input-frames').focus(); 
-        }
-    });
-
-    document.getElementById('input-frames').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-        }
-    });
-
+    // ===== キーボード操作 =====
     document.addEventListener('keydown', function(e) {
         if (document.getElementById('play-screen').classList.contains('hidden')) return;
 
         if (e.key === 'Enter') {
             e.preventDefault();
 
-            if (currentStep === 0) {
-                currentStep = 1;
-                document.getElementById('input-frames').focus();
-            } 
-            else if (currentStep === 1) {
-                checkAnswer();
-            } 
-            else if (currentStep === 2) {
+            if (gameState.isAwaitingResult) {
                 nextQuestion();
+                return;
             }
+
+            if (gameState.inputStep === 'seconds') {
+                gameState.inputStep = 'frames';
+                document.getElementById('input-frames').focus();
+            } else if (gameState.inputStep === 'frames') {
+                submitAnswer();
+            }
+        }
+    });
+
+    document.getElementById('input-seconds').addEventListener('focus', function() {
+        if (!gameState.isAwaitingResult) {
+            gameState.inputStep = 'seconds';
+        }
+    });
+
+    document.getElementById('input-frames').addEventListener('focus', function() {
+        if (!gameState.isAwaitingResult) {
+            gameState.inputStep = 'frames';
         }
     });
 </script>
